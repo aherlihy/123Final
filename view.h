@@ -4,6 +4,7 @@
 #include <qgl.h>
 #include <QTime>
 #include <QTimer>
+#include "camera.h"
 
 class View : public QGLWidget
 {
@@ -13,6 +14,8 @@ public:
     View(QWidget *parent);
     ~View();
 
+    void updateSettings();
+    void updateCamera();
 private:
     QTime time;
     QTimer timer;
@@ -28,8 +31,16 @@ private:
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
 
+
 private slots:
     void tick();
+private:
+    GLUquadric *m_quadric;
+    MyCamera m_camera;
+    QTimer m_timer;
+    float m_fps;
+    float m_increment;
+    int fogMode;
 };
 
 #endif // VIEW_H

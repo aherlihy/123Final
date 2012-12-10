@@ -17,6 +17,9 @@ SOURCES += main.cpp \
     view.cpp
 
 HEADERS += mainwindow.h \
-    view.h
+    view.h \
+    camera.h \
+    vector.h \
+    settings.h
 
 FORMS += mainwindow.ui
