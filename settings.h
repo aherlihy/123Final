@@ -48,6 +48,7 @@ struct Settings
     bool lightingEnabled;      // Enable or disable lighting.
     int shadingMode;    // The shading mode to be used.
     int camera_control;
+    float view_rad;
 };
 
 // The global Settings object, will be initialized by MainWindow

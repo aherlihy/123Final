@@ -21,6 +21,7 @@ bottom_terrain::bottom_terrain()
     srand(0);
     // Imagining your terrain as a square grid of points, gridLength is the number of elements on one side, or the length of a side of the grid
     m_gridLength = (1 << m_depth)+1;
+    printf("gridlength = %i\n", m_gridLength);
 
     // Knowing the number of elements on a side gives us the total number of elements in the grid
     int terrain_array_size = m_gridLength * m_gridLength;
@@ -161,7 +162,7 @@ void bottom_terrain::computeNormals()
 double bottom_terrain::getPerturb(int cur_depth)
 {
     double toret = (m_roughness * pow((double)cur_depth / m_depth, m_decay) * ((rand() % 200-100) / 100.0));
-    return (toret<0)? 0.5+toret : toret;
+    return /*(toret<0)? 0.5+toret :*/ toret;
 }
 
 /****************************************************************************************************************/

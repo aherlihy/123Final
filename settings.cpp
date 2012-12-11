@@ -19,6 +19,7 @@ void Settings::loadSettingsOrDefaults()
     lightingEnabled = s.value("lightingEnabled", false).toBool();
     shadingMode = s.value("shadingMode", SHADING_FLAT).toInt();
     camera_control = s.value("camera_control", TIMER_CONTROL).toInt();
+    view_rad = 15.0f;
 }
 
 void Settings::saveSettings()
@@ -28,4 +29,5 @@ void Settings::saveSettings()
     s.setValue("fillMode", fillMode);
     s.setValue("lightingEnabled", lightingEnabled);
     s.setValue("shadingMode", shadingMode);
+    s.setValue("view_rad", view_rad);
 }

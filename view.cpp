@@ -50,13 +50,18 @@ void View::initializeGL()
     // Get a new quadrics obect
     m_quadric = gluNewQuadric();
 
-    // Init textures
+    // init textures
     gluQuadricDrawStyle(m_quadric, GLU_FILL);
     gluQuadricTexture(m_quadric, GL_TRUE);
+
     // Load texture for trunk
-    if(barktexture = loadTexture("/home/aherlihy/course/cs123/123Final/data/pink.jpg")==-1) {
+    if(barktexture = loadTexture("/home/aherlihy/course/cs123/123Final/data/desert2.jpg&size=1024")==-1) {
         printf("PICTURE NO EXISTS\n");
     }
+    glEnable(GL_TEXTURE_2D);
+    // Bind the ambient and diffuse color of each vertex to the current glColor() value
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
     // Start with flat shading
     glShadeModel(GL_SMOOTH);
@@ -72,27 +77,27 @@ void View::initializeGL()
     glFrontFace(GL_CCW);
 
     // Enable color materials with ambient and diffuse lighting terms
-    glEnable(GL_COLOR_MATERIAL);
-    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+//    glEnable(GL_COLOR_MATERIAL);
+//    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
     // Set up global (ambient) lighting
-    GLfloat global_ambient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
-    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 1);
+//    GLfloat global_ambient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
+//    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
+//    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 1);
 
     // Set up GL_LIGHT0 with a position and lighting properties
-//    GLfloat ambientLight[] = {0.1f, 0.1f, 0.1f, 1.0f};
+    GLfloat ambientLight[] = {0.1f, 0.1f, 0.1f, 1.0f};
     GLfloat diffuseLight[] = { 1.0f, 1.0f, 1.0, 1.0f };
     GLfloat specularLight[] = { 0.5f, 0.5f, 0.5f, 1.0f };
     GLfloat position[] = { 2.0f, 2.0f, 2.0f, 1.0f };
-    //glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
-    glLightfv(GL_LIGHT0, GL_POSITION, position);
+//    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
+//    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
+//    glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
+//    glLightfv(GL_LIGHT0, GL_POSITION, position);
     glEnable(GL_LIGHTING);
     // Set up fog
 
-    GLfloat fogColor[4]= {1.0f,1.0f,1.0f, 1.0f};
+    GLfloat fogColor[4]= {(238.0f/255.0f),(229.0f/255.0f),(202.0f/255.0f), 1.0f};
     glEnable(GL_FOG);
     fogMode = GL_EXP;
     glFogi(GL_FOG_MODE, fogMode);
@@ -104,10 +109,7 @@ void View::initializeGL()
 
 
     // Set the screen color when the color buffer is cleared (in RGBA format)
-//    glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
-    glClearColor(1.0f,1.0f,1.0f, 1.0f);
-
-
+    glClearColor((238.0f/255.0f),(229.0f/255.0f),(202.0f/255.0f), 1.0f);
 
     // Load the initial settings
     updateSettings();
@@ -118,8 +120,7 @@ void View::initializeGL()
     glEnable(GL_LIGHT0);
 
     // End Initialize gl
-//    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
 
     // Center the mouse, which is explained more in mouseMoveEvent() below.
     // This needs to be done here because the mouse may be initially outside
@@ -133,25 +134,38 @@ void View::paintTrunk() {
     float time = m_increment++ / (float) m_fps;
     glPushMatrix();
 
-    glColor3f(1.0f,0.0f,0.0f);
+//    glColor3f(1.0f,0.0f,0.0f);
     gluCylinder(m_quadric, 1.0f, 1.0f, 1200.0f, 10, 1);
 
-    if(settings.camera_control==TIMER_CONTROL) {
-        m_camera.eye.x=15*cos(time);
-        m_camera.eye.y=15*sin(time);
-        m_camera.eye.z=time;//if you want to look down upon the origin can set to increment with time.
+    m_camera.eye.x=settings.view_rad*cos(time);
+    m_camera.eye.y=settings.view_rad*sin(time);
+    m_camera.eye.z=time;//if you want to look down upon the origin can set to increment with time.
+
+    if(settings.camera_control==TIMER_CONTROL)
 
         //if you want to look purpendicular to the trunk, you need to reset the look vector
-        m_camera.center.x = 0.0f, m_camera.center.y = 0.0f, m_camera.center.z = time;
-    }
+        m_camera.center.x = 0.0f, m_camera.center.y = 0.0f;//, m_camera.center.z = time;
+
 
     glPopMatrix();
 }
+void View::paintSun() {
+    glDisable(GL_TEXTURE_2D);
+    glPushMatrix();
+
+    glColor3f(1.0f,1.0f,1.0f);
+    glTranslatef(50, 50,200);
+
+    gluSphere(m_quadric, 20, 20,20);
+
+    glPopMatrix();
+    glEnable(GL_TEXTURE_2D);
+
+}
+
 void View::paintBase() {
 
-//    if(loadTexture("/home/aherlihy/course/cs123/123Final/data/pink.jpg")==-1) {
-//        printf("PICTURE NO EXISTS\n");
-//    }
+
     glPushMatrix();
 
     for(int i=0;i<m_bterrain->m_gridLength-1;i++) {
@@ -170,26 +184,48 @@ void View::paintBase() {
             temp = nor1.z; nor1.y=nor1.z; nor1.z=temp;
             temp = nor2.z; nor2.y=nor2.z; nor2.z=temp;
 
-            glTexCoord2f(((float)i+1)/m_bterrain->m_gridLength, 1.0f-((float)j/m_bterrain->m_gridLength));
+
+            glTexCoord2f((float)i/m_bterrain->m_gridLength, 1.0f-((float)j/m_bterrain->m_gridLength));
+
             glNormal3dv(nor2.data);
             glVertex3dv(ter2.data);
 
-            glTexCoord2f((float)i/m_bterrain->m_gridLength, 1.0f-((float)j/m_bterrain->m_gridLength));
+            glTexCoord2f(((float)i+1)/m_bterrain->m_gridLength, 1.0f-((float)j/m_bterrain->m_gridLength));
+
             glNormal3dv(nor1.data);
             glVertex3dv(ter1.data);
+
         }
         glEnd();
     }
 
     glBegin(GL_QUADS);
-    glVertex3f(-500,500,-1);
-    glVertex3f(-500,-500,-1);
 
-    glVertex3f(500,-500,-1);
-    glVertex3f(500,500,-1);
+
+    for(int x = -490; x<490; x+=20) {
+        for(int y = -490; y<490; y+=20) {
+
+
+            glVertex3f(x+10,y+10,0);
+            glTexCoord2f(1,1);
+
+
+            glVertex3f(x-10, y+10,0);
+            glTexCoord2f(0,1);
+
+
+            glVertex3f(x-10,y-10,0);
+            glTexCoord2f(0,0);
+
+
+            glVertex3f(x+10,y-10,0);
+            glTexCoord2f(1,0);
+        }
+
+    }
     glEnd();
 
-        glPopMatrix();
+    glPopMatrix();
 
 }
 
@@ -200,7 +236,7 @@ void View::paintGL()
 
     paintTrunk();
     paintBase();
-
+    paintSun();
 
     updateCamera();
 
@@ -256,6 +292,7 @@ void View::mouseMoveEvent(QMouseEvent *event)
     int deltaY = event->y() - height() / 2;
     if (!deltaX && !deltaY) return;
     QCursor::setPos(mapToGlobal(QPoint(width() / 2, height() / 2)));
+    int now = time.second();
 
     // TODO: Handle mouse movements here
     if (event->buttons() & Qt::RightButton || event->buttons() & Qt::LeftButton)
@@ -265,12 +302,33 @@ void View::mouseMoveEvent(QMouseEvent *event)
         m_camera.center.y=0;
         m_camera.center.z=m_camera.center.z + deltaY;
 
+//        float t = acos((m_camera.eye.x/settings.view_rad));
+//        m_camera.eye.x = settings.view_rad*cos(t + deltaX/(2*M_PI));
+//        m_camera.eye.y = settings.view_rad*sin(t + deltaX/(2*M_PI));
         updateCamera();
 
     }
 
 
 
+}
+void View::wheelEvent(QWheelEvent *event)
+{
+    if (event->orientation() == Qt::Vertical)
+    {
+        float to_add = settings.view_rad + (event->delta()/25);
+        if(to_add < 2 && to_add > -2) {
+            if(event->delta()>0) {
+                settings.view_rad=2.5;
+            }
+            else {
+                settings.view_rad=-2.5;
+            }
+        }
+        else {
+            settings.view_rad = to_add;
+        }
+    }
 }
 
 void View::keyPressEvent(QKeyEvent *event)
@@ -299,10 +357,10 @@ int View::loadTexture(const QString &filename)
 {
     printf("loading file: %s\n", filename.toStdString().c_str());
     // Make sure the image file exists
+    // Make sure the image file exists
     QFile file(filename);
-    if (!file.exists()) {
+    if (!file.exists())
         return -1;
-    }
 
     // Load the file into memory
     QImage image;
@@ -314,6 +372,19 @@ int View::loadTexture(const QString &filename)
     GLuint id = 0;
     glGenTextures(1, &id);
 
+    // Make the texture we just created the new active texture
+    glBindTexture(GL_TEXTURE_2D, GL_TEXTURE0);
+
+    // Copy the image data into the OpenGL texture
+    gluBuild2DMipmaps(GL_TEXTURE_2D, 3, texture.width(), texture.height(), GL_RGBA, GL_UNSIGNED_BYTE, texture.bits());
+
+    // Set filtering options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // Set coordinate wrapping options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
     return id;
 }
