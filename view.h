@@ -6,6 +6,8 @@
 #include <QTimer>
 #include "camera.h"
 #include <GL/glu.h>
+#include "bottom_terrain.h"
+
 
 class View : public QGLWidget
 {
@@ -23,6 +25,8 @@ private:
 
     void initializeGL();
     void paintGL();
+    void paintTrunk();
+    void paintBase();
     void resizeGL(int w, int h);
 
     void mousePressEvent(QMouseEvent *event);
@@ -43,6 +47,7 @@ private:
     float m_increment;
     int fogMode;
     int barktexture;
+    bottom_terrain* m_bterrain;
 
 };
 

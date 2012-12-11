@@ -16,12 +16,13 @@ SOURCES += main.cpp \
     mainwindow.cpp \
     view.cpp \
     settings.cpp \
-    camera.cpp
+    camera.cpp \
+    bottom_terrain.cpp
 
 HEADERS += mainwindow.h \
     view.h \
     camera.h \
-    vector.h \
-    settings.h
+    settings.h \
+    bottom_terrain.h
 
 FORMS += mainwindow.ui

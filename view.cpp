@@ -24,6 +24,9 @@ View::View(QWidget *parent) : QGLWidget(parent), m_timer(this), m_fps(60.0f), m_
     m_camera.fovy = 45.0f, m_camera.near = 1.0f, m_camera.far = 1000.0f;
     m_camera.theta = M_PI * 1.5f, m_camera.phi = -0.2f;
 
+    m_bterrain = new bottom_terrain();
+    m_bterrain->populateTerrain();
+    m_bterrain->computeNormals();
 }
 
 View::~View()
@@ -126,25 +129,12 @@ glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     QCursor::setPos(mapToGlobal(QPoint(width() / 2, height() / 2)));
 }
 
-void View::paintGL()
-{
-    // Clear the color and depth buffers to the current glClearColor
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    //initalize texture
-    glEnable(GL_TEXTURE_2D);
-
-    // Get the time in seconds
+void View::paintTrunk() {
     float time = m_increment++ / (float) m_fps;
-
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-
-    glBindTexture(GL_TEXTURE_2D, barktexture);
     glPushMatrix();
 
-    glTranslatef(0.5*cos(time),0.5*sin(time),0);
     glColor3f(1.0f,0.0f,0.0f);
-    gluCylinder(m_quadric, 1.0f, 1.0f, 1200.0f, 3, 1);
+    gluCylinder(m_quadric, 1.0f, 1.0f, 1200.0f, 10, 1);
 
     if(settings.camera_control==TIMER_CONTROL) {
         m_camera.eye.x=15*cos(time);
@@ -156,9 +146,63 @@ void View::paintGL()
     }
 
     glPopMatrix();
-    updateCamera();
+}
+void View::paintBase() {
 
-    glDisable(GL_TEXTURE_2D);
+//    if(loadTexture("/home/aherlihy/course/cs123/123Final/data/pink.jpg")==-1) {
+//        printf("PICTURE NO EXISTS\n");
+//    }
+    glPushMatrix();
+
+    for(int i=0;i<m_bterrain->m_gridLength-1;i++) {
+        glBegin(GL_TRIANGLE_STRIP);
+        for (int j=0;j<m_bterrain->m_gridLength;j++) {
+            int index = m_bterrain->getIndex(GridIndex(i,j));
+            int index2 = m_bterrain->getIndex(GridIndex(i+1,j));
+
+            Vector3 ter1 = m_bterrain->m_terrain[index];
+            Vector3 ter2 = m_bterrain->m_terrain[index2];
+            Vector3 nor1 = m_bterrain->m_normalMap[index];
+            Vector3 nor2 = m_bterrain->m_normalMap[index2];
+
+            float temp = ter1.z;ter1.z = ter1.y; ter1.y = temp-1;
+            temp = ter2.z;ter2.z=ter2.y; ter2.y = temp-1;
+            temp = nor1.z; nor1.y=nor1.z; nor1.z=temp;
+            temp = nor2.z; nor2.y=nor2.z; nor2.z=temp;
+
+            glTexCoord2f(((float)i+1)/m_bterrain->m_gridLength, 1.0f-((float)j/m_bterrain->m_gridLength));
+            glNormal3dv(nor2.data);
+            glVertex3dv(ter2.data);
+
+            glTexCoord2f((float)i/m_bterrain->m_gridLength, 1.0f-((float)j/m_bterrain->m_gridLength));
+            glNormal3dv(nor1.data);
+            glVertex3dv(ter1.data);
+        }
+        glEnd();
+    }
+
+    glBegin(GL_QUADS);
+    glVertex3f(-500,500,-1);
+    glVertex3f(-500,-500,-1);
+
+    glVertex3f(500,-500,-1);
+    glVertex3f(500,500,-1);
+    glEnd();
+
+        glPopMatrix();
+
+}
+
+void View::paintGL()
+{
+    // Clear the color and depth buffers to the current glClearColor
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    paintTrunk();
+    paintBase();
+
+
+    updateCamera();
 
     glFlush();
 }

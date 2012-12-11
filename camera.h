@@ -1,7 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "vector.h"
+#include "CS123Algebra.h"
 
 /**
     A basic camera
