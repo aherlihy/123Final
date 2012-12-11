@@ -5,6 +5,7 @@
 #include "settings.h"
 View::View(QWidget *parent) : QGLWidget(parent), m_timer(this), m_fps(60.0f), m_increment(0)
 {
+    showMaximized();
     // View needs all mouse move events, not just mouse drag events
     setMouseTracking(true);
 
@@ -52,13 +53,22 @@ void View::initializeGL()
 
     // init textures
     gluQuadricDrawStyle(m_quadric, GLU_FILL);
+
     gluQuadricTexture(m_quadric, GL_TRUE);
 
-    // Load texture for trunk
-    if(barktexture = loadTexture("/home/aherlihy/course/cs123/123Final/data/desert2.jpg&size=1024")==-1) {
-        printf("PICTURE NO EXISTS\n");
+    // Load textures
+    // Generate a new OpenGL texture ID to put our image into
+    GLuint id[3];
+    glGenTextures(3, id);
+    if(loadTexture("/home/aherlihy/course/cs123/123Final/data/bark1.jpg", id[0])==-1) {
+        printf("BARK TEXTURE DOESN'T EXIST\n");
     }
-    glEnable(GL_TEXTURE_2D);
+    if(loadTexture("/home/aherlihy/course/cs123/123Final/data/desert2.jpg&size=1024", id[1])==-1) {
+        printf("DESERT TEXTURE DOESNT EXIST\n");
+    }
+    deserttexture = id[1];
+    barktexture = id[0];
+
     // Bind the ambient and diffuse color of each vertex to the current glColor() value
     glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
@@ -76,25 +86,24 @@ void View::initializeGL()
     // Specify that the front face is represented by vertices in counterclockwise order (this is the default)
     glFrontFace(GL_CCW);
 
-    // Enable color materials with ambient and diffuse lighting terms
-//    glEnable(GL_COLOR_MATERIAL);
-//    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
-
     // Set up global (ambient) lighting
-//    GLfloat global_ambient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-//    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
-//    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 1);
+
+    GLfloat global_ambient[] = { 0.5f,  0.5f,  0.5f, 1.0f };
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
+    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 1);
 
     // Set up GL_LIGHT0 with a position and lighting properties
-    GLfloat ambientLight[] = {0.1f, 0.1f, 0.1f, 1.0f};
-    GLfloat diffuseLight[] = { 1.0f, 1.0f, 1.0, 1.0f };
-    GLfloat specularLight[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-    GLfloat position[] = { 2.0f, 2.0f, 2.0f, 1.0f };
+//    GLfloat ambientLight[] = {0.1f, 0.1f, 0.1f, 1.0f};
+//    GLfloat diffuseLight[] = { 1.0f, 1.0f, 1.0, 1.0f };
+//    GLfloat specularLight[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+//    GLfloat position[] = { 0.0f, 0.0f, 3.0f, 1.0f };
 //    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
 //    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
 //    glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
 //    glLightfv(GL_LIGHT0, GL_POSITION, position);
     glEnable(GL_LIGHTING);
+
+
     // Set up fog
 
     GLfloat fogColor[4]= {(238.0f/255.0f),(229.0f/255.0f),(202.0f/255.0f), 1.0f};
@@ -117,7 +126,7 @@ void View::initializeGL()
 
 
     // TODO: Put any other initialization here
-    glEnable(GL_LIGHT0);
+//    glEnable(GL_LIGHT0);
 
     // End Initialize gl
 
@@ -131,23 +140,38 @@ void View::initializeGL()
 }
 
 void View::paintTrunk() {
+    glEnable(GL_TEXTURE_2D);
+
+//    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);            // Set The Texture Generation Mode For S To Sphere Mapping ( NEW )
+//    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);            // Set The Texture Generation Mode For T To Sphere Mapping ( NEW )
+//    glEnable(GL_TEXTURE_GEN_S);                     // Enable Texture Coord Generation For S ( NEW )
+//    glEnable(GL_TEXTURE_GEN_T);                     // Enable Texture Coord Generation For T ( NEW )
+    glBindTexture(GL_TEXTURE_2D, barktexture);
+
     float time = m_increment++ / (float) m_fps;
     glPushMatrix();
 
-//    glColor3f(1.0f,0.0f,0.0f);
     gluCylinder(m_quadric, 1.0f, 1.0f, 1200.0f, 10, 1);
 
-    m_camera.eye.x=settings.view_rad*cos(time);
-    m_camera.eye.y=settings.view_rad*sin(time);
-    m_camera.eye.z=time;//if you want to look down upon the origin can set to increment with time.
+//    m_camera.eye.x=settings.view_rad*cos(time);
+//    m_camera.eye.y=settings.view_rad*sin(time);
+//    m_camera.eye.z=time;//if you want to look down upon the origin can set to increment with time.
 
-    if(settings.camera_control==TIMER_CONTROL)
+    if(settings.camera_control==TIMER_CONTROL) {
 
         //if you want to look purpendicular to the trunk, you need to reset the look vector
         m_camera.center.x = 0.0f, m_camera.center.y = 0.0f;//, m_camera.center.z = time;
 
+        m_camera.eye.x=settings.view_rad*cos(time);
+        m_camera.eye.y=settings.view_rad*sin(time);
+        m_camera.eye.z=time;//if you want to look down upon the origin can set to increment with time.
+    }
 
     glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+//    glDisable(GL_TEXTURE_GEN_S);
+//    glDisable(GL_TEXTURE_GEN_T);
+
 }
 void View::paintSun() {
     glDisable(GL_TEXTURE_2D);
@@ -165,40 +189,61 @@ void View::paintSun() {
 
 void View::paintBase() {
 
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, deserttexture);
 
     glPushMatrix();
 
-    for(int i=0;i<m_bterrain->m_gridLength-1;i++) {
-        glBegin(GL_TRIANGLE_STRIP);
-        for (int j=0;j<m_bterrain->m_gridLength;j++) {
-            int index = m_bterrain->getIndex(GridIndex(i,j));
-            int index2 = m_bterrain->getIndex(GridIndex(i+1,j));
+    float length = m_bterrain->m_gridLength;
+    float num_t = 1000/length;
+    printf("length = %f\n", length);
+    printf("num_t=%f\n", num_t);
 
-            Vector3 ter1 = m_bterrain->m_terrain[index];
-            Vector3 ter2 = m_bterrain->m_terrain[index2];
-            Vector3 nor1 = m_bterrain->m_normalMap[index];
-            Vector3 nor2 = m_bterrain->m_normalMap[index2];
+//    for(int r=0;r<num_t;r++) {
+//        for(int q = 0;q<num_t;q++) {
+            float r = 0.0; float q=0.0;
+            float x_offset = 0 + r*length;
+            float y_offset = 0 + q*length;
 
-            float temp = ter1.z;ter1.z = ter1.y; ter1.y = temp-1;
-            temp = ter2.z;ter2.z=ter2.y; ter2.y = temp-1;
-            temp = nor1.z; nor1.y=nor1.z; nor1.z=temp;
-            temp = nor2.z; nor2.y=nor2.z; nor2.z=temp;
+//            printf("offset=(%f,%f)\n", x_offset, y_offset);
+
+            for(int i=0;i<m_bterrain->m_gridLength-1;i++) {
+                glBegin(GL_TRIANGLE_STRIP);
+                for (int j=0;j<m_bterrain->m_gridLength;j++) {
+                    int index = m_bterrain->getIndex(GridIndex(i,j));
+                    int index2 = m_bterrain->getIndex(GridIndex(i+1,j));
+
+                    Vector3 ter1 = m_bterrain->m_terrain[index];
+                    Vector3 ter2 = m_bterrain->m_terrain[index2];
+                    Vector3 nor1 = m_bterrain->m_normalMap[index];
+                    Vector3 nor2 = m_bterrain->m_normalMap[index2];
+
+                    float temp = ter1.z+x_offset;ter1.z = ter1.y; ter1.y = temp-1+y_offset;
+                    temp = ter2.z+x_offset;ter2.z=ter2.y; ter2.y = temp-1+y_offset;
 
 
-            glTexCoord2f((float)i/m_bterrain->m_gridLength, 1.0f-((float)j/m_bterrain->m_gridLength));
+                    temp = nor1.z; nor1.y=nor1.z; nor1.z=temp;
+                    temp = nor2.z; nor2.y=nor2.z; nor2.z=temp;
 
-            glNormal3dv(nor2.data);
-            glVertex3dv(ter2.data);
+                    glTexCoord2f(
+                            ((float)i/(float)length),
+                            1.0f-((float)j/(float)length));
+                    glNormal3dv(nor2.data);
+                    glVertex3dv(ter2.data);
 
-            glTexCoord2f(((float)i+1)/m_bterrain->m_gridLength, 1.0f-((float)j/m_bterrain->m_gridLength));
 
-            glNormal3dv(nor1.data);
-            glVertex3dv(ter1.data);
 
-        }
-        glEnd();
+                    glTexCoord2f(
+                            ((float)i+1.0f)/(float)length,
+                            1.0f-((float)j/(float)length));
+                    glNormal3dv(nor1.data);
+                    glVertex3dv(ter1.data);
+
+                }
+                glEnd();
+//            }
+//        }
     }
-
     glBegin(GL_QUADS);
 
 
@@ -226,6 +271,7 @@ void View::paintBase() {
     glEnd();
 
     glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
 
 }
 
@@ -325,7 +371,7 @@ void View::wheelEvent(QWheelEvent *event)
                 settings.view_rad=-2.5;
             }
         }
-        else {
+        else if(to_add > -450 && to_add < 450) {
             settings.view_rad = to_add;
         }
     }
@@ -353,10 +399,9 @@ void View::tick()
     update();
 }
 
-int View::loadTexture(const QString &filename)
+int View::loadTexture(const QString &filename, int id)
 {
     printf("loading file: %s\n", filename.toStdString().c_str());
-    // Make sure the image file exists
     // Make sure the image file exists
     QFile file(filename);
     if (!file.exists())
@@ -368,12 +413,9 @@ int View::loadTexture(const QString &filename)
     image = image.mirrored(false, true);
     QImage texture = QGLWidget::convertToGLFormat(image);
 
-    // Generate a new OpenGL texture ID to put our image into
-    GLuint id = 0;
-    glGenTextures(1, &id);
 
     // Make the texture we just created the new active texture
-    glBindTexture(GL_TEXTURE_2D, GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, id);
 
     // Copy the image data into the OpenGL texture
     gluBuild2DMipmaps(GL_TEXTURE_2D, 3, texture.width(), texture.height(), GL_RGBA, GL_UNSIGNED_BYTE, texture.bits());
@@ -383,8 +425,8 @@ int View::loadTexture(const QString &filename)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // Set coordinate wrapping options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     return id;
 }

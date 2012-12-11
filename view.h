@@ -37,7 +37,7 @@ private:
 
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
-    int loadTexture(const QString &filename);
+    int loadTexture(const QString &filename, int id);
 
 private slots:
     void tick();
@@ -49,6 +49,8 @@ private:
     float m_increment;
     int fogMode;
     int barktexture;
+    int deserttexture;
+    int suntexture;
     bottom_terrain* m_bterrain;
 
 };
