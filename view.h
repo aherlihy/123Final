@@ -5,6 +5,7 @@
 #include <QTime>
 #include <QTimer>
 #include "camera.h"
+#include <GL/glu.h>
 
 class View : public QGLWidget
 {
@@ -30,7 +31,7 @@ private:
 
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
-
+    int loadTexture(const QString &filename);
 
 private slots:
     void tick();
@@ -41,6 +42,8 @@ private:
     float m_fps;
     float m_increment;
     int fogMode;
+    int barktexture;
+
 };
 
 #endif // VIEW_H

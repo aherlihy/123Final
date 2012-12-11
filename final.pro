@@ -14,7 +14,9 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     mainwindow.cpp \
-    view.cpp
+    view.cpp \
+    settings.cpp \
+    camera.cpp
 
 HEADERS += mainwindow.h \
     view.h \

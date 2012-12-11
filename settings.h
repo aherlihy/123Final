@@ -20,6 +20,10 @@ enum ShadingMode
     NUM_SHADING_MODES
 };
 
+enum CameraControl {
+    USER_CONTROL,
+    TIMER_CONTROL
+};
 
 /**
 
@@ -43,6 +47,7 @@ struct Settings
     int fillMode;      // The drawing mode used to draw primitives.
     bool lightingEnabled;      // Enable or disable lighting.
     int shadingMode;    // The shading mode to be used.
+    int camera_control;
 };
 
 // The global Settings object, will be initialized by MainWindow

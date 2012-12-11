@@ -8,7 +8,13 @@
 */
 struct MyCamera {
     Vector3 eye, center, up;
+    float theta, phi;
     float fovy, near, far;
+
+
+    void mouseMove(float deltaX, float deltaY);
+    void mouseWheel(float delta);
+    void lookAt(const Vector3 &point);
 };
 
 #endif // CAMERA_H

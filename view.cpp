@@ -1,7 +1,8 @@
 #include "view.h"
 #include <QApplication>
 #include <QKeyEvent>
-
+#include <QFile>
+#include "settings.h"
 View::View(QWidget *parent) : QGLWidget(parent), m_timer(this), m_fps(60.0f), m_increment(0)
 {
     // View needs all mouse move events, not just mouse drag events
@@ -21,6 +22,8 @@ View::View(QWidget *parent) : QGLWidget(parent), m_timer(this), m_fps(60.0f), m_
     m_camera.center.x = 0.0f, m_camera.center.y = 0.0f, m_camera.center.z = 0.0f;
     m_camera.up.x = 0.0f, m_camera.up.y = 0.0f, m_camera.up.z = 1.0f;
     m_camera.fovy = 45.0f, m_camera.near = 1.0f, m_camera.far = 1000.0f;
+    m_camera.theta = M_PI * 1.5f, m_camera.phi = -0.2f;
+
 }
 
 View::~View()
@@ -44,8 +47,16 @@ void View::initializeGL()
     // Get a new quadrics obect
     m_quadric = gluNewQuadric();
 
+    // Init textures
+    gluQuadricDrawStyle(m_quadric, GLU_FILL);
+    gluQuadricTexture(m_quadric, GL_TRUE);
+    // Load texture for trunk
+    if(barktexture = loadTexture("/home/aherlihy/course/cs123/123Final/data/pink.jpg")==-1) {
+        printf("PICTURE NO EXISTS\n");
+    }
+
     // Start with flat shading
-    glShadeModel(GL_FLAT);
+    glShadeModel(GL_SMOOTH);
 
     // Enable depth testing, so that objects are occluded based on depth instead of drawing order
     glEnable(GL_DEPTH_TEST);
@@ -67,7 +78,7 @@ void View::initializeGL()
     glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 1);
 
     // Set up GL_LIGHT0 with a position and lighting properties
-    GLfloat ambientLight[] = {0.1f, 0.1f, 0.1f, 1.0f};
+//    GLfloat ambientLight[] = {0.1f, 0.1f, 0.1f, 1.0f};
     GLfloat diffuseLight[] = { 1.0f, 1.0f, 1.0, 1.0f };
     GLfloat specularLight[] = { 0.5f, 0.5f, 0.5f, 1.0f };
     GLfloat position[] = { 2.0f, 2.0f, 2.0f, 1.0f };
@@ -75,10 +86,10 @@ void View::initializeGL()
     glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
     glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
     glLightfv(GL_LIGHT0, GL_POSITION, position);
-
+    glEnable(GL_LIGHTING);
     // Set up fog
 
-    GLfloat fogColor[4]= {0.7f, 0.7f, 0.7f, 5.0f};
+    GLfloat fogColor[4]= {1.0f,1.0f,1.0f, 1.0f};
     glEnable(GL_FOG);
     fogMode = GL_EXP;
     glFogi(GL_FOG_MODE, fogMode);
@@ -90,18 +101,22 @@ void View::initializeGL()
 
 
     // Set the screen color when the color buffer is cleared (in RGBA format)
-    glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
+//    glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
+    glClearColor(1.0f,1.0f,1.0f, 1.0f);
+
 
 
     // Load the initial settings
     updateSettings();
     updateCamera();
 
+
     // TODO: Put any other initialization here
     glEnable(GL_LIGHT0);
 
     // End Initialize gl
-
+//    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
     // Center the mouse, which is explained more in mouseMoveEvent() below.
     // This needs to be done here because the mouse may be initially outside
@@ -116,27 +131,36 @@ void View::paintGL()
     // Clear the color and depth buffers to the current glClearColor
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    //initalize texture
+    glEnable(GL_TEXTURE_2D);
+
     // Get the time in seconds
     float time = m_increment++ / (float) m_fps;
 
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
+    glBindTexture(GL_TEXTURE_2D, barktexture);
     glPushMatrix();
 
     glTranslatef(0.5*cos(time),0.5*sin(time),0);
     glColor3f(1.0f,0.0f,0.0f);
-    gluCylinder(m_quadric, 1.0f, 1.0f, 1200.0f, 20, 1);
+    gluCylinder(m_quadric, 1.0f, 1.0f, 1200.0f, 3, 1);
 
-    m_camera.eye.x=15*cos(time);
-    m_camera.eye.y=15*sin(time);
-    m_camera.eye.z=time;//if you want to look down upon the origin can set to increment with time.
+    if(settings.camera_control==TIMER_CONTROL) {
+        m_camera.eye.x=15*cos(time);
+        m_camera.eye.y=15*sin(time);
+        m_camera.eye.z=time;//if you want to look down upon the origin can set to increment with time.
 
-    //if you want to look purpendicular to the trunk, you need to reset the look vector
-    //m_camera.center.x = 0.0f, m_camera.center.y = 0.0f, m_camera.center.z = time-10;
+        //if you want to look purpendicular to the trunk, you need to reset the look vector
+        m_camera.center.x = 0.0f, m_camera.center.y = 0.0f, m_camera.center.z = time;
+    }
 
     glPopMatrix();
     updateCamera();
 
+    glDisable(GL_TEXTURE_2D);
+
     glFlush();
-    // TODO: Implement the demo rendering here
 }
 
 void View::resizeGL(int w, int h)
@@ -158,7 +182,9 @@ void View::updateCamera()
     gluPerspective(m_camera.fovy, aspectRatio, m_camera.near, m_camera.far);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
     gluLookAt(m_camera.eye.x, m_camera.eye.y, m_camera.eye.z, m_camera.center.x, m_camera.center.y, m_camera.center.z, m_camera.up.x, m_camera.up.y, m_camera.up.z);
+
 }
 
 void View::updateSettings()
@@ -166,8 +192,11 @@ void View::updateSettings()
 
 }
 
-void View::mousePressEvent(QMouseEvent *event)
-{
+void View::mousePressEvent(QMouseEvent *event) {
+    settings.camera_control=USER_CONTROL;
+}
+void View::mouseReleaseEvent ( QMouseEvent *event ) {
+    settings.camera_control=TIMER_CONTROL;
 }
 
 void View::mouseMoveEvent(QMouseEvent *event)
@@ -185,10 +214,19 @@ void View::mouseMoveEvent(QMouseEvent *event)
     QCursor::setPos(mapToGlobal(QPoint(width() / 2, height() / 2)));
 
     // TODO: Handle mouse movements here
-}
+    if (event->buttons() & Qt::RightButton || event->buttons() & Qt::LeftButton)
+    {
 
-void View::mouseReleaseEvent(QMouseEvent *event)
-{
+        m_camera.center.x=0;
+        m_camera.center.y=0;
+        m_camera.center.z=m_camera.center.z + deltaY;
+
+        updateCamera();
+
+    }
+
+
+
 }
 
 void View::keyPressEvent(QKeyEvent *event)
@@ -211,4 +249,27 @@ void View::tick()
 
     // Flag this view for repainting (Qt will call paintGL() soon after)
     update();
+}
+
+int View::loadTexture(const QString &filename)
+{
+    printf("loading file: %s\n", filename.toStdString().c_str());
+    // Make sure the image file exists
+    QFile file(filename);
+    if (!file.exists()) {
+        return -1;
+    }
+
+    // Load the file into memory
+    QImage image;
+    image.load(file.fileName());
+    image = image.mirrored(false, true);
+    QImage texture = QGLWidget::convertToGLFormat(image);
+
+    // Generate a new OpenGL texture ID to put our image into
+    GLuint id = 0;
+    glGenTextures(1, &id);
+
+
+    return id;
 }
