@@ -7,6 +7,7 @@
 #include "camera.h"
 #include <GL/glu.h>
 #include "bottom_terrain.h"
+#include "BranchFactory.h"
 
 
 class View : public QGLWidget
@@ -52,6 +53,8 @@ private:
     int deserttexture;
     int suntexture;
     bottom_terrain* m_bterrain;
+
+    BranchFactory *m_factory;
 
 };
 
