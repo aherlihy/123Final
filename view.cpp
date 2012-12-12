@@ -49,6 +49,7 @@ void View::initializeGL()
 
     // Start a timer that will try to get 60 frames per second (the actual
     // frame rate depends on the operating system and other running programs)
+    current_mid = 5;
     time.start();
     timer.start(1000 / m_fps);
 
@@ -113,15 +114,15 @@ void View::initializeGL()
 
     // Set up fog
 
-    GLfloat fogColor[4]= {(238.0f/255.0f),(229.0f/255.0f),(202.0f/255.0f), 1.0f};
-    glEnable(GL_FOG);
-    fogMode = GL_EXP;
-    glFogi(GL_FOG_MODE, fogMode);
-    glFogfv(GL_FOG_COLOR, fogColor);
-    glFogf(GL_FOG_DENSITY, 0.015);
-    glHint(GL_FOG_HINT, GL_DONT_CARE);
-    glFogf(GL_FOG_START, 1.0);
-    glFogf(GL_FOG_END, 25.0);
+//    GLfloat fogColor[4]= {(238.0f/255.0f),(229.0f/255.0f),(202.0f/255.0f), 1.0f};
+//    glEnable(GL_FOG);
+//    fogMode = GL_EXP;
+//    glFogi(GL_FOG_MODE, fogMode);
+//    glFogfv(GL_FOG_COLOR, fogColor);
+//    glFogf(GL_FOG_DENSITY, 0.015);
+//    glHint(GL_FOG_HINT, GL_DONT_CARE);
+//    glFogf(GL_FOG_START, 1.0);
+//    glFogf(GL_FOG_END, 25.0);
 
 
     // Set the screen color when the color buffer is cleared (in RGBA format)
@@ -144,9 +145,11 @@ void View::initializeGL()
     // events. This occurs if there are two monitors and the mouse is on the
     // secondary monitor.
     QCursor::setPos(mapToGlobal(QPoint(width() / 2, height() / 2)));
-
+    float dir=0.0;
     for (int i=0; i<10; i++) {
-        m_branches->push_back(*m_factory->generateBranch(5));
+        m_branches->push_back(*m_factory->generateBranch(9));
+        m_branches->at(i).setPosition(Vector3(1.0, 1.0, (float)i));
+        m_branches->at(i).setDirection(dir+=30);
     }
     m_branch = m_factory->generateBranch(5);
 }
@@ -167,16 +170,15 @@ void View::paintTrunk() {
 
     glScalef(10, 10, 10);
     m_branch->drawBranch();
+    glScalef(0.1, 0.1, 0.1);
+    gluCylinder(m_quadric, 4.0f, 0.5f, 1200.0f, 100, 100);
+//    float dir_counter = 0;
+    for (int i=0; i<m_branches->size(); i++) {
+//        m_branches->at(i).setPosition(Vector3(0.0, 0.0, current_mid+1*(i-5)));
+//        m_branches->at(i).setDirection(dir_counter);
+        m_branches->at(i).drawBranch();
 
-    //gluCylinder(m_quadric, 1.0f, 1.0f, 1200.0f, 10, 1);
-//    for (int i=0; i<m_branches->size(); i++) {
-//        glTranslatef(0, 0, 10.0);
-//        glRotatef(time, 0.0, 0.0, 1.0);
-//        glPushMatrix();
-//        glRotatef(60.0, 0.0, 1.0, 0.0);
-//        m_branches->at(i).drawBranch();
-//        glPopMatrix();
-//    }
+    }
 
 //    m_camera.eye.x=settings.view_rad*cos(time);
 //    m_camera.eye.y=settings.view_rad*sin(time);

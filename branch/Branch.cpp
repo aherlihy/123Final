@@ -7,7 +7,7 @@ Branch::Branch(GLUquadric *quad, LetterList list)
     m_list = list;
     m_segs = new vector<Seg >();
 
-    m_dir = Vector3(0, 0, 1.0);
+    m_dir = 0;
     m_pos = Vector3(0, 0, 0);
 }
 
@@ -31,7 +31,11 @@ void Branch::drawBranch(void)
 //        b.normalize();
 //        double theta = acos(a.dot(b));
 //        glRotatef(theta, 0.0, 0.0, 1.0);
-//        glTranslatef(m_pos.x, m_pos.y, m_pos.z);
+        glTranslatef(m_pos.x, m_pos.y, m_pos.z);
+
+        glRotatef(60.0, 0.0, 1.0, 0.0);
+        glRotatef(m_dir, 0.0, 0.0, 1.0);
+
 
         glMultMatrixd(cur.trans.data);
         if (cur.len > EPSILON) {
@@ -106,7 +110,7 @@ void Branch::setPosition(Vector3 pos)
     m_pos = pos;
 }
 
-void Branch::setDirection(Vector3 dir)
+void Branch::setDirection(double dir)
 {
     m_dir = dir;
 }

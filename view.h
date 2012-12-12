@@ -58,6 +58,7 @@ private:
     BranchFactory *m_factory;
     std::deque<Branch > *m_branches;
     Branch *m_branch;
+    float current_mid;
 
 };
 

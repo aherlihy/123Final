@@ -54,7 +54,7 @@ public:
     void parseList(void);
 
     void setPosition(Vector3 pos);
-    void setDirection(Vector3 dir);
+    void setDirection(double dir);
 
 
 private:
@@ -62,7 +62,8 @@ private:
     std::vector<Seg> *m_segs;
     GLUquadric *m_quad;
     double randDouble(double lo, double hi);
-    Vector3 m_pos, m_dir;
+    Vector3 m_pos;
+    double m_dir;
 };
 
 #endif // BRANCH_H
