@@ -291,14 +291,14 @@ struct mat4 {
     inline mat4<T> getTranspose() const { return mat4<T>::transpose(*this); }
 
     inline mat4& operator+=(const mat4& rhs) {
-#pragma vector align
+//#pragma vector align
         for (unsigned i = 0; i < 16; ++i)
             data[i] += rhs.data[i];
         return *this;
     }
 
     inline mat4& operator-=(const mat4& rhs) {
-#pragma vector align
+//#pragma vector align
         for (unsigned i = 0; i < 16; ++i)
             data[i] -= rhs.data[i];
         return *this;
