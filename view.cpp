@@ -27,6 +27,7 @@ View::View(QWidget *parent) : QGLWidget(parent), m_timer(this), m_fps(60.0f), m_
     m_bterrain = new bottom_terrain();
     m_bterrain->populateTerrain();
     m_bterrain->computeNormals();
+
 }
 
 View::~View()
@@ -49,6 +50,7 @@ void View::initializeGL()
 
     // Get a new quadrics obect
     m_quadric = gluNewQuadric();
+    m_factory = new BranchFactory(m_quadric);
 
     // init textures
     gluQuadricDrawStyle(m_quadric, GLU_FILL);

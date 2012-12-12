@@ -17,12 +17,24 @@ SOURCES += main.cpp \
     view.cpp \
     settings.cpp \
     camera.cpp \
-    bottom_terrain.cpp
+    bottom_terrain.cpp \
+    branch/Branch.cpp \
+    branch/BranchFactory.cpp \
+    branch/LSystem.cpp \
+    lib/CS123Matrix.cpp
 
 HEADERS += mainwindow.h \
     view.h \
     camera.h \
     settings.h \
-    bottom_terrain.h
+    bottom_terrain.h \
+    branch/Branc.h \
+    branch/BranchFactory.h \
+    branch/LSystem.h \
+    lib/CS123Algebra.h \
+    lib/CS123Common.h \
+
 
 FORMS += mainwindow.ui
+INCLUDEPATH += branch lib
+DEPENDPATH += branch lib
