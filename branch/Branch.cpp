@@ -6,18 +6,33 @@ Branch::Branch(GLUquadric *quad, LetterList list)
     m_quad = quad;
     m_list = list;
     m_segs = new vector<Seg >();
+
+    m_dir = Vector3(0, 0, 1.0);
+    m_pos = Vector3(0, 0, 0);
 }
 
 Branch::~Branch() {
+    m_segs->clear();
     if (m_segs) delete m_segs;
 }
 
 void Branch::drawBranch(void)
 {
-    glMatrixMode(GL_MODELVIEW);
     for (int i=0; i<m_segs->size(); i++) {
         glPushMatrix();
         Seg cur = m_segs->at(i);
+
+//        double phi = acos(m_dir.dot(Vector3(0.0, 0.0, 1.0)));
+//        glRotatef(phi, 1.0, 0.0, 0.0);
+//        Vector3 a = m_dir;
+//        a.z = 0;
+//        a.normalize();
+//        Vector3 b = Vector3(m_dir.x, m_dir.y, 0.0);
+//        b.normalize();
+//        double theta = acos(a.dot(b));
+//        glRotatef(theta, 0.0, 0.0, 1.0);
+//        glTranslatef(m_pos.x, m_pos.y, m_pos.z);
+
         glMultMatrixd(cur.trans.data);
         if (cur.len > EPSILON) {
             glTranslated(0, 0, -cur.len);
@@ -85,6 +100,17 @@ double Branch::randDouble(double lo, double hi)
     double r = (double)rand()/(double)RAND_MAX;
     return lo + (hi-lo)*r;
 }
+
+void Branch::setPosition(Vector3 pos)
+{
+    m_pos = pos;
+}
+
+void Branch::setDirection(Vector3 dir)
+{
+    m_dir = dir;
+}
+
 
 // FORK_EVEN    V_0
 // FORK_RIGHT   V_1

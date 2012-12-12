@@ -29,11 +29,16 @@ View::View(QWidget *parent) : QGLWidget(parent), m_timer(this), m_fps(60.0f), m_
     m_bterrain->populateTerrain();
     m_bterrain->computeNormals();
 
+    m_branches = new std::deque<Branch >();
+    m_factory = NULL;
 }
 
 View::~View()
 {
     gluDeleteQuadric(m_quadric);
+    m_branches->clear();
+    delete m_branches;
+    if (m_factory) delete m_factory;
 }
 
 void View::initializeGL()
@@ -139,9 +144,16 @@ void View::initializeGL()
     // events. This occurs if there are two monitors and the mouse is on the
     // secondary monitor.
     QCursor::setPos(mapToGlobal(QPoint(width() / 2, height() / 2)));
+
+    for (int i=0; i<10; i++) {
+        m_branches->push_back(*m_factory->generateBranch(5));
+    }
+    m_branch = m_factory->generateBranch(5);
 }
 
 void View::paintTrunk() {
+
+
     glEnable(GL_TEXTURE_2D);
 
 //    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);            // Set The Texture Generation Mode For S To Sphere Mapping ( NEW )
@@ -153,7 +165,18 @@ void View::paintTrunk() {
     float time = m_increment++ / (float) m_fps;
     glPushMatrix();
 
-    gluCylinder(m_quadric, 1.0f, 1.0f, 1200.0f, 10, 1);
+    glScalef(10, 10, 10);
+    m_branch->drawBranch();
+
+    //gluCylinder(m_quadric, 1.0f, 1.0f, 1200.0f, 10, 1);
+//    for (int i=0; i<m_branches->size(); i++) {
+//        glTranslatef(0, 0, 10.0);
+//        glRotatef(time, 0.0, 0.0, 1.0);
+//        glPushMatrix();
+//        glRotatef(60.0, 0.0, 1.0, 0.0);
+//        m_branches->at(i).drawBranch();
+//        glPopMatrix();
+//    }
 
 //    m_camera.eye.x=settings.view_rad*cos(time);
 //    m_camera.eye.y=settings.view_rad*sin(time);
@@ -283,7 +306,7 @@ void View::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     paintTrunk();
-    paintBase();
+    //paintBase();
     paintSun();
 
     updateCamera();

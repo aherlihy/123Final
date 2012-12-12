@@ -28,7 +28,7 @@ HEADERS += mainwindow.h \
     camera.h \
     settings.h \
     bottom_terrain.h \
-    branch/Branc.h \
+    branch/Branch.h \
     branch/BranchFactory.h \
     branch/LSystem.h \
     lib/CS123Algebra.h \

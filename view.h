@@ -8,6 +8,7 @@
 #include <GL/glu.h>
 #include "bottom_terrain.h"
 #include "BranchFactory.h"
+#include <deque>
 
 
 class View : public QGLWidget
@@ -55,6 +56,8 @@ private:
     bottom_terrain* m_bterrain;
 
     BranchFactory *m_factory;
+    std::deque<Branch > *m_branches;
+    Branch *m_branch;
 
 };
 
