@@ -19,7 +19,7 @@ View::View(QWidget *parent) : QGLWidget(parent), m_timer(this), m_fps(60.0f), m_
     connect(&timer, SIGNAL(timeout()), this, SLOT(tick()));
 
     // Set up the camera
-    m_camera.eye.x = 5.0f, m_camera.eye.y = 0.0f, m_camera.eye.z = 0.0f;
+    m_camera.eye.x = 50.0f, m_camera.eye.y = 0.0f, m_camera.eye.z = 0.0f;
     m_camera.center.x = 0.0f, m_camera.center.y = 0.0f, m_camera.center.z = 0.0f;
     m_camera.up.x = 0.0f, m_camera.up.y = 0.0f, m_camera.up.z = 1.0f;
     m_camera.fovy = 45.0f, m_camera.near = 1.0f, m_camera.far = 1000.0f;
@@ -29,16 +29,17 @@ View::View(QWidget *parent) : QGLWidget(parent), m_timer(this), m_fps(60.0f), m_
     m_bterrain->populateTerrain();
     m_bterrain->computeNormals();
 
-    m_branches = new std::deque<Branch >();
-    m_factory = NULL;
+
+//    m_branches = new std::deque<Branch >();
+//    m_factory = NULL;
 }
 
 View::~View()
 {
     gluDeleteQuadric(m_quadric);
-    m_branches->clear();
-    delete m_branches;
-    if (m_factory) delete m_factory;
+//    m_branches->clear();
+//    delete m_branches;
+//    if (m_factory) delete m_factory;
 }
 
 void View::initializeGL()
@@ -55,27 +56,27 @@ void View::initializeGL()
 
     // Start Initialize GL
 
-    // Get a new quadrics obect
+    // Get a new quadrics object
     m_quadric = gluNewQuadric();
-    m_factory = new BranchFactory(m_quadric);
+//    m_factory = new BranchFactory(m_quadric);
 
     // init textures
     gluQuadricDrawStyle(m_quadric, GLU_FILL);
 
-    gluQuadricTexture(m_quadric, GL_TRUE);
+//    gluQuadricTexture(m_quadric, GL_TRUE);
 
-    // Load textures
-    // Generate a new OpenGL texture ID to put our image into
-    GLuint id[3];
-    glGenTextures(3, id);
-    if(loadTexture("/home/aherlihy/course/cs123/123Final/data/bark1.jpg", id[0])==-1) {
-        printf("BARK TEXTURE DOESN'T EXIST\n");
-    }
-    if(loadTexture("/home/aherlihy/course/cs123/123Final/data/desert2.jpg&size=1024", id[1])==-1) {
-        printf("DESERT TEXTURE DOESNT EXIST\n");
-    }
-    deserttexture = id[1];
-    barktexture = id[0];
+//    // Load textures
+//    // Generate a new OpenGL texture ID to put our image into
+//    GLuint id[3];
+//    glGenTextures(3, id);
+//    if(loadTexture("/home/aherlihy/course/cs123/123Final/data/bark1.jpg", id[0])==-1) {
+//        printf("BARK TEXTURE DOESN'T EXIST\n");
+//    }
+//    if(loadTexture("/home/aherlihy/course/cs123/123Final/data/desert2.jpg&size=1024", id[1])==-1) {
+//        printf("DESERT TEXTURE DOESNT EXIST\n");
+//    }
+//    deserttexture = id[1];
+//    barktexture = id[0];
 
     // Bind the ambient and diffuse color of each vertex to the current glColor() value
     glEnable(GL_COLOR_MATERIAL);
@@ -114,19 +115,19 @@ void View::initializeGL()
 
     // Set up fog
 
-//    GLfloat fogColor[4]= {(238.0f/255.0f),(229.0f/255.0f),(202.0f/255.0f), 1.0f};
-//    glEnable(GL_FOG);
-//    fogMode = GL_EXP;
-//    glFogi(GL_FOG_MODE, fogMode);
-//    glFogfv(GL_FOG_COLOR, fogColor);
-//    glFogf(GL_FOG_DENSITY, 0.015);
-//    glHint(GL_FOG_HINT, GL_DONT_CARE);
-//    glFogf(GL_FOG_START, 1.0);
-//    glFogf(GL_FOG_END, 25.0);
+//        GLfloat fogColor[4]= {1.0,1.0,1.0, 1.0f};
+//        glEnable(GL_FOG);
+//        fogMode = GL_EXP;
+//        glFogi(GL_FOG_MODE, fogMode);
+//        glFogfv(GL_FOG_COLOR, fogColor);
+//        glFogf(GL_FOG_DENSITY, 0.015);
+//        glHint(GL_FOG_HINT, GL_DONT_CARE);
+//        glFogf(GL_FOG_START, 1.0);
+//        glFogf(GL_FOG_END, 25.0);
 
 
     // Set the screen color when the color buffer is cleared (in RGBA format)
-    glClearColor((238.0f/255.0f),(229.0f/255.0f),(202.0f/255.0f), 1.0f);
+    glClearColor(1.0,1.0,1.0, 1.0f);
 
     // Load the initial settings
     updateSettings();
@@ -145,45 +146,54 @@ void View::initializeGL()
     // events. This occurs if there are two monitors and the mouse is on the
     // secondary monitor.
     QCursor::setPos(mapToGlobal(QPoint(width() / 2, height() / 2)));
-    float dir=0.0;
-    for (int i=0; i<10; i++) {
-        m_branches->push_back(*m_factory->generateBranch(9));
-        m_branches->at(i).setPosition(Vector3(1.0, 1.0, (float)i));
-        m_branches->at(i).setDirection(dir+=30);
-    }
-    m_branch = m_factory->generateBranch(5);
+//    float dir=0.0;
+//    for (int i=0; i<10; i++) {
+//        m_branches->push_back(*m_factory->generateBranch(9));
+//        m_branches->at(i).setPosition(Vector3(1.0, 1.0, (float)i));
+//        m_branches->at(i).setDirection(dir+=30);
+//    }
+//    m_branch = m_factory->generateBranch(5);
 }
 
 void View::paintTrunk() {
 
 
-    glEnable(GL_TEXTURE_2D);
+//    glEnable(GL_TEXTURE_2D);
 
 //    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);            // Set The Texture Generation Mode For S To Sphere Mapping ( NEW )
 //    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_SPHERE_MAP);            // Set The Texture Generation Mode For T To Sphere Mapping ( NEW )
 //    glEnable(GL_TEXTURE_GEN_S);                     // Enable Texture Coord Generation For S ( NEW )
 //    glEnable(GL_TEXTURE_GEN_T);                     // Enable Texture Coord Generation For T ( NEW )
-    glBindTexture(GL_TEXTURE_2D, barktexture);
+//    glBindTexture(GL_TEXTURE_2D, barktexture);
 
     float time = m_increment++ / (float) m_fps;
     glPushMatrix();
-
-    glScalef(10, 10, 10);
-    m_branch->drawBranch();
-    glScalef(0.1, 0.1, 0.1);
-    gluCylinder(m_quadric, 4.0f, 0.5f, 1200.0f, 100, 100);
+//    glScalef(10, 10, 10);
+//    m_branch->drawBranch();
+//    glScalef(0.1, 0.1, 0.1);
 //    float dir_counter = 0;
-    for (int i=0; i<m_branches->size(); i++) {
+//    for (int i=0; i<m_branches->size(); i++) {
 //        m_branches->at(i).setPosition(Vector3(0.0, 0.0, current_mid+1*(i-5)));
 //        m_branches->at(i).setDirection(dir_counter);
-        m_branches->at(i).drawBranch();
+//        m_branches->at(i).drawBranch();
 
-    }
+//    }
 
 //    m_camera.eye.x=settings.view_rad*cos(time);
 //    m_camera.eye.y=settings.view_rad*sin(time);
 //    m_camera.eye.z=time;//if you want to look down upon the origin can set to increment with time.
-
+    float old_r = 50;
+    float new_r = 25;
+    for(float h = 1;h<25;h++) {
+//        printf("new_r=%f\n", new_r);
+        glColor4f(1.0f,0.0,0.0,1.0f);
+        new_r = 25.0f/h;
+        gluCylinder(m_quadric, old_r, new_r, 1.0f, 100, 100);
+        glTranslatef(0.0,0.0,1.0);
+        old_r = new_r;
+    }
+  //  glTranslatef(0,0,50);
+    gluCylinder(m_quadric, new_r, 1.0, 1150.0f, 100, 100);
     if(settings.camera_control==TIMER_CONTROL) {
 
         //if you want to look purpendicular to the trunk, you need to reset the look vector
@@ -195,48 +205,22 @@ void View::paintTrunk() {
     }
 
     glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
+//    glDisable(GL_TEXTURE_2D);
 //    glDisable(GL_TEXTURE_GEN_S);
 //    glDisable(GL_TEXTURE_GEN_T);
 
 }
-void View::paintSun() {
-    glDisable(GL_TEXTURE_2D);
+
+
+void View::paintMountains() {
     glPushMatrix();
+    glScalef(20.0,20.0,20.0);
+    glColor4f(0.0,0.0,0.0,1.0);
+    for(int i=0;i<m_bterrain->m_gridLength-1;i++) {
+            glBegin(GL_TRIANGLE_STRIP);
 
-    glColor3f(1.0f,1.0f,1.0f);
-    glTranslatef(50, 50,200);
+            for (int j=0;j<m_bterrain->m_gridLength;j++) {
 
-    gluSphere(m_quadric, 20, 20,20);
-
-    glPopMatrix();
-    glEnable(GL_TEXTURE_2D);
-
-}
-
-void View::paintBase() {
-
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, deserttexture);
-
-    glPushMatrix();
-
-    float length = m_bterrain->m_gridLength;
-    float num_t = 1000/length;
-    printf("length = %f\n", length);
-    printf("num_t=%f\n", num_t);
-
-//    for(int r=0;r<num_t;r++) {
-//        for(int q = 0;q<num_t;q++) {
-            float r = 0.0; float q=0.0;
-            float x_offset = 0 + r*length;
-            float y_offset = 0 + q*length;
-
-//            printf("offset=(%f,%f)\n", x_offset, y_offset);
-
-            for(int i=0;i<m_bterrain->m_gridLength-1;i++) {
-                glBegin(GL_TRIANGLE_STRIP);
-                for (int j=0;j<m_bterrain->m_gridLength;j++) {
                     int index = m_bterrain->getIndex(GridIndex(i,j));
                     int index2 = m_bterrain->getIndex(GridIndex(i+1,j));
 
@@ -245,61 +229,43 @@ void View::paintBase() {
                     Vector3 nor1 = m_bterrain->m_normalMap[index];
                     Vector3 nor2 = m_bterrain->m_normalMap[index2];
 
-                    float temp = ter1.z+x_offset;ter1.z = ter1.y; ter1.y = temp-1+y_offset;
-                    temp = ter2.z+x_offset;ter2.z=ter2.y; ter2.y = temp-1+y_offset;
+                    float temp = ter1.z;
+                    ter1.z = ter1.y;
+                    ter1.y = temp;
+                    temp = ter2.z;
+                    ter2.z=ter2.y;
+                    ter2.y = temp;
 
 
                     temp = nor1.z; nor1.y=nor1.z; nor1.z=temp;
                     temp = nor2.z; nor2.y=nor2.z; nor2.z=temp;
 
-                    glTexCoord2f(
-                            ((float)i/(float)length),
-                            1.0f-((float)j/(float)length));
+
+                    if(sqrt((ter1.x)*(ter1.x) + (ter1.y)*(ter1.y))<2.5) {
+                        ter1.z=-1;
+                    }
+                    if(sqrt(ter2.x*ter2.x + ter2.y*ter2.y)<2.5) {
+                        ter2.z=-1;
+                    }
+
+        //            glTexCoord2f(
+        //                    ((float)i/(float)length),
+        //                    1.0f-((float)j/(float)length));
                     glNormal3dv(nor2.data);
                     glVertex3dv(ter2.data);
 
 
 
-                    glTexCoord2f(
-                            ((float)i+1.0f)/(float)length,
-                            1.0f-((float)j/(float)length));
+        //            glTexCoord2f(
+        //                    ((float)i+1.0f)/(float)length,
+        //                    1.0f-((float)j/(float)length));
                     glNormal3dv(nor1.data);
                     glVertex3dv(ter1.data);
-
-                }
-                glEnd();
-//            }
-//        }
-    }
-    glBegin(GL_QUADS);
-
-
-    for(int x = -490; x<490; x+=20) {
-        for(int y = -490; y<490; y+=20) {
-
-
-            glVertex3f(x+10,y+10,0);
-            glTexCoord2f(1,1);
-
-
-            glVertex3f(x-10, y+10,0);
-            glTexCoord2f(0,1);
-
-
-            glVertex3f(x-10,y-10,0);
-            glTexCoord2f(0,0);
-
-
-            glVertex3f(x+10,y-10,0);
-            glTexCoord2f(1,0);
-        }
+            }
+        glEnd();
 
     }
-    glEnd();
-
     glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
-
 }
 
 void View::paintGL()
@@ -308,8 +274,8 @@ void View::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     paintTrunk();
-    //paintBase();
-    paintSun();
+    paintMountains();
+
 
     updateCamera();
 
@@ -398,7 +364,7 @@ void View::wheelEvent(QWheelEvent *event)
                 settings.view_rad=-2.5;
             }
         }
-        else if(to_add > -450 && to_add < 450) {
+        else if(to_add > -50 && to_add < 50) {
             settings.view_rad = to_add;
         }
     }

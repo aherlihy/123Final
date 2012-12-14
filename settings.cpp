@@ -16,10 +16,10 @@ void Settings::loadSettingsOrDefaults()
     QSettings s;
 
     fillMode = s.value("fillMode", FILL_POINTS).toInt();
-    lightingEnabled = s.value("lightingEnabled", false).toBool();
+    lightingEnabled = s.value("lightingEnabled", true).toBool();
     shadingMode = s.value("shadingMode", SHADING_FLAT).toInt();
     camera_control = s.value("camera_control", TIMER_CONTROL).toInt();
-    view_rad = 15.0f;
+    view_rad = 50.0f;
 }
 
 void Settings::saveSettings()

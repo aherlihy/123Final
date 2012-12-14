@@ -28,8 +28,6 @@ private:
     void initializeGL();
     void paintGL();
     void paintTrunk();
-    void paintBase();
-    void paintSun();
     void resizeGL(int w, int h);
 
     void mousePressEvent(QMouseEvent *event);
@@ -40,6 +38,7 @@ private:
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
     int loadTexture(const QString &filename, int id);
+    void paintMountains();
 
 private slots:
     void tick();

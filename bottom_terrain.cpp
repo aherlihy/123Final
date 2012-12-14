@@ -161,7 +161,7 @@ void bottom_terrain::computeNormals()
  */
 double bottom_terrain::getPerturb(int cur_depth)
 {
-    double toret = (m_roughness * pow((double)cur_depth / m_depth, m_decay) * ((rand() % 200-100) / 100.0));
+    double toret = (m_roughness * pow((double)cur_depth / m_depth, m_decay) * ((rand() %    100) / 100.0));
     return /*(toret<0)? 0.5+toret :*/ toret;
 }
 
