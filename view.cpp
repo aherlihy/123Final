@@ -113,6 +113,7 @@ void View::initializeGL()
     glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
     glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
     glLightfv(GL_LIGHT0, GL_POSITION, position);
+    glEnable(GL_LIGHT0);
 
 
     // Set up fog
@@ -135,9 +136,8 @@ void View::initializeGL()
     updateSettings();
     updateCamera();
 
-
-    // TODO: Put any other initialization here
-    glEnable(GL_LIGHT0);
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
     // End Initialize gl
 
@@ -183,9 +183,9 @@ void View::paintTrunk() {
 
 //    }
 //comment out to get it to freeze when click
-    m_camera.eye.x=settings.view_rad*cos(time);
-    m_camera.eye.y=settings.view_rad*sin(time);
-    m_camera.eye.z=time;//if you want to look down upon the origin can set to increment with time.
+//    m_camera.eye.x=settings.view_rad*cos(time);
+//    m_camera.eye.y=settings.view_rad*sin(time);
+//    m_camera.eye.z=time;//if you want to look down upon the origin can set to increment with time.
     float old_r = 50;
     float new_r = 25;
     for(float h = 1;h<25;h++) {
@@ -203,9 +203,9 @@ void View::paintTrunk() {
         //if you want to look purpendicular to the trunk, you need to reset the look vector
         m_camera.center.x = 0.0f, m_camera.center.y = 0.0f;//, m_camera.center.z = time;
 //uncomment to get it to freeze when click
-//        m_camera.eye.x=settings.view_rad*cos(time);
-//        m_camera.eye.y=settings.view_rad*sin(time);
-//        m_camera.eye.z=time;//if you want to look down upon the origin can set to increment with time.
+        m_camera.eye.x=settings.view_rad*cos(time);
+        m_camera.eye.y=settings.view_rad*sin(time);
+        m_camera.eye.z=time;//if you want to look down upon the origin can set to increment with time.
     }
 
     glPopMatrix();
@@ -281,7 +281,7 @@ void View::paintGL()
     paintTrunk();
     paintMountains();
     m_emitter->updateParticles();       //Move the particles
-//    m_emitter->drawParticles(m_quadric);         //Draw the particles
+    m_emitter->drawParticles(m_quadric);         //Draw the particles
 
     swapBuffers();
 

@@ -33,9 +33,9 @@ void ParticleEmitter::resetParticle(unsigned i)
 {
     m_particles[i].pos.x=0;
     m_particles[i].pos.y=0;
-    m_particles[i].pos.z=0;
+    m_particles[i].pos.z=50;
 
-    m_particles[i].life = 1;
+    m_particles[i].life = 10;
     m_particles[i].decay = urand(0.0025f, 0.15f);
 
     m_particles[i].color.r = m_color.x;
@@ -100,7 +100,7 @@ void ParticleEmitter::updateParticles()
   * Draws each particle as a small, texture-mapped square of side-length m_scale.
   * Each square should be in the X/Y plane at Z = the particle's position's Z-coordinate.
   */
-void ParticleEmitter::drawParticles()
+void ParticleEmitter::drawParticles(GLUquadric *m_quadric)
 {
 
     //need to disable depth testing
@@ -109,7 +109,6 @@ void ParticleEmitter::drawParticles()
     //bind texture
 //   --- glBindTexture(GL_TEXTURE_2D, m_textureID);
     //blend function
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
     glMatrixMode(GL_MODELVIEW);
 
@@ -128,7 +127,7 @@ void ParticleEmitter::drawParticles()
         glColor4f(1.0,1.0,1.0, 1.0);//sqrt(p.life));
 
         glTranslatef(p.pos.x, p.pos.y, p.pos.z);
-        //gluSphere(m_quadric, 0.05, 5,5);
+        gluSphere(m_quadric, 0.05, 5,5);
         glTranslatef(-p.pos.x, -p.pos.y, -p.pos.z);
 //        glVertex3f(p.pos.x-length, p.pos.y+length, p.pos.z);
 //////     ---   glTexCoord2f(0,1);
@@ -142,9 +141,9 @@ void ParticleEmitter::drawParticles()
 
     }
     glEnd();
-    glAccum(GL_MULT, .8);
-    glAccum(GL_ACCUM, .2);
-    glAccum(GL_RETURN, 1.0);
+//    glAccum(GL_MULT, .8);
+//    glAccum(GL_ACCUM, .2);
+//    glAccum(GL_RETURN, 1.0);
 
     glPopMatrix();
     glDepthMask(1);
