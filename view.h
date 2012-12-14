@@ -9,6 +9,7 @@
 #include "bottom_terrain.h"
 #include "BranchFactory.h"
 #include <deque>
+#include "particleemitter.h"
 
 
 class View : public QGLWidget
@@ -58,6 +59,7 @@ private:
     std::deque<Branch > *m_branches;
     Branch *m_branch;
     float current_mid;
+    ParticleEmitter* m_emitter;
 
 };
 

@@ -3,6 +3,7 @@
 #include <QKeyEvent>
 #include <QFile>
 #include "settings.h"
+#include "particleemitter.h"
 View::View(QWidget *parent) : QGLWidget(parent), m_timer(this), m_fps(60.0f), m_increment(0)
 {
     showMaximized();
@@ -28,7 +29,8 @@ View::View(QWidget *parent) : QGLWidget(parent), m_timer(this), m_fps(60.0f), m_
     m_bterrain = new bottom_terrain();
     m_bterrain->populateTerrain();
     m_bterrain->computeNormals();
-
+    //setAutoBufferSwap(false);
+    //setFocusPolicy(Qt::StrongFocus);
 
 //    m_branches = new std::deque<Branch >();
 //    m_factory = NULL;
@@ -67,8 +69,8 @@ void View::initializeGL()
 
 //    // Load textures
 //    // Generate a new OpenGL texture ID to put our image into
-//    GLuint id[3];
-//    glGenTextures(3, id);
+    GLuint id[3];
+    glGenTextures(3, id);
 //    if(loadTexture("/home/aherlihy/course/cs123/123Final/data/bark1.jpg", id[0])==-1) {
 //        printf("BARK TEXTURE DOESN'T EXIST\n");
 //    }
@@ -97,33 +99,33 @@ void View::initializeGL()
 
     // Set up global (ambient) lighting
 
+    glEnable(GL_LIGHTING);
     GLfloat global_ambient[] = { 0.5f,  0.5f,  0.5f, 1.0f };
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
     glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 1);
 
     // Set up GL_LIGHT0 with a position and lighting properties
-//    GLfloat ambientLight[] = {0.1f, 0.1f, 0.1f, 1.0f};
-//    GLfloat diffuseLight[] = { 1.0f, 1.0f, 1.0, 1.0f };
-//    GLfloat specularLight[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-//    GLfloat position[] = { 0.0f, 0.0f, 3.0f, 1.0f };
-//    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
-//    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
-//    glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
-//    glLightfv(GL_LIGHT0, GL_POSITION, position);
-    glEnable(GL_LIGHTING);
+    GLfloat ambientLight[] = {0.1f, 0.1f, 0.1f, 1.0f};
+    GLfloat diffuseLight[] = { 1.0f, 1.0f, 1.0, 1.0f };
+    GLfloat specularLight[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+    GLfloat position[] = { 1000.0f, 1000.0f, 1000.0f, 0.0f };
+    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
+    glLightfv(GL_LIGHT0, GL_POSITION, position);
 
 
     // Set up fog
 
-//        GLfloat fogColor[4]= {1.0,1.0,1.0, 1.0f};
-//        glEnable(GL_FOG);
-//        fogMode = GL_EXP;
-//        glFogi(GL_FOG_MODE, fogMode);
-//        glFogfv(GL_FOG_COLOR, fogColor);
-//        glFogf(GL_FOG_DENSITY, 0.015);
-//        glHint(GL_FOG_HINT, GL_DONT_CARE);
-//        glFogf(GL_FOG_START, 1.0);
-//        glFogf(GL_FOG_END, 25.0);
+    GLfloat fogColor[4]= {1.0,1.0,1.0, 1.0f};
+    glEnable(GL_FOG);
+    fogMode = GL_EXP;
+    glFogi(GL_FOG_MODE, fogMode);
+    glFogfv(GL_FOG_COLOR, fogColor);
+    glFogf(GL_FOG_DENSITY, 0.015);
+    glHint(GL_FOG_HINT, GL_DONT_CARE);
+    glFogf(GL_FOG_START, 1.0);
+    glFogf(GL_FOG_END, 25.0);
 
 
     // Set the screen color when the color buffer is cleared (in RGBA format)
@@ -135,7 +137,7 @@ void View::initializeGL()
 
 
     // TODO: Put any other initialization here
-//    glEnable(GL_LIGHT0);
+    glEnable(GL_LIGHT0);
 
     // End Initialize gl
 
@@ -153,6 +155,8 @@ void View::initializeGL()
 //        m_branches->at(i).setDirection(dir+=30);
 //    }
 //    m_branch = m_factory->generateBranch(5);
+
+    m_emitter = new ParticleEmitter(loadTexture(":textures/particle1.bmp", id[2]));
 }
 
 void View::paintTrunk() {
@@ -178,10 +182,10 @@ void View::paintTrunk() {
 //        m_branches->at(i).drawBranch();
 
 //    }
-
-//    m_camera.eye.x=settings.view_rad*cos(time);
-//    m_camera.eye.y=settings.view_rad*sin(time);
-//    m_camera.eye.z=time;//if you want to look down upon the origin can set to increment with time.
+//comment out to get it to freeze when click
+    m_camera.eye.x=settings.view_rad*cos(time);
+    m_camera.eye.y=settings.view_rad*sin(time);
+    m_camera.eye.z=time;//if you want to look down upon the origin can set to increment with time.
     float old_r = 50;
     float new_r = 25;
     for(float h = 1;h<25;h++) {
@@ -198,10 +202,10 @@ void View::paintTrunk() {
 
         //if you want to look purpendicular to the trunk, you need to reset the look vector
         m_camera.center.x = 0.0f, m_camera.center.y = 0.0f;//, m_camera.center.z = time;
-
-        m_camera.eye.x=settings.view_rad*cos(time);
-        m_camera.eye.y=settings.view_rad*sin(time);
-        m_camera.eye.z=time;//if you want to look down upon the origin can set to increment with time.
+//uncomment to get it to freeze when click
+//        m_camera.eye.x=settings.view_rad*cos(time);
+//        m_camera.eye.y=settings.view_rad*sin(time);
+//        m_camera.eye.z=time;//if you want to look down upon the origin can set to increment with time.
     }
 
     glPopMatrix();
@@ -241,10 +245,10 @@ void View::paintMountains() {
                     temp = nor2.z; nor2.y=nor2.z; nor2.z=temp;
 
 
-                    if(sqrt((ter1.x)*(ter1.x) + (ter1.y)*(ter1.y))<2.5) {
+                    if(sqrt((ter1.x)*(ter1.x) + (ter1.y)*(ter1.y))<2.5f) {
                         ter1.z=-1;
                     }
-                    if(sqrt(ter2.x*ter2.x + ter2.y*ter2.y)<2.5) {
+                    if(sqrt(ter2.x*ter2.x + ter2.y*ter2.y)<2.5f) {
                         ter2.z=-1;
                     }
 
@@ -270,12 +274,16 @@ void View::paintMountains() {
 
 void View::paintGL()
 {
+    glEnable(GL_LIGHTING);
     // Clear the color and depth buffers to the current glClearColor
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+//    glClear(GL_ACCUM_BUFFER_BIT);
     paintTrunk();
     paintMountains();
+    m_emitter->updateParticles();       //Move the particles
+//    m_emitter->drawParticles(m_quadric);         //Draw the particles
 
+    swapBuffers();
 
     updateCamera();
 

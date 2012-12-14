@@ -21,7 +21,8 @@ SOURCES += main.cpp \
     branch/Branch.cpp \
     branch/BranchFactory.cpp \
     branch/LSystem.cpp \
-    lib/CS123Matrix.cpp
+    lib/CS123Matrix.cpp \
+    particleemitter.cpp
 
 HEADERS += mainwindow.h \
     view.h \
@@ -33,6 +34,8 @@ HEADERS += mainwindow.h \
     branch/LSystem.h \
     lib/CS123Algebra.h \
     lib/CS123Common.h \
+    particleemitter.h \
+    common.h
 
 
 FORMS += mainwindow.ui
