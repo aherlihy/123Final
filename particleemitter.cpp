@@ -9,7 +9,6 @@ ParticleEmitter::ParticleEmitter(GLuint textureId, float3 color, float3 velocity
 {
     m_particles = new Particle[maxParticles];
     resetParticles();
-    printf("TEXTUREID = %i\n", m_textureID);
     for (unsigned i = 0; i < m_maxParticles; ++i)
         m_particles[i].active = false;
 }

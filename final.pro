@@ -22,6 +22,9 @@ SOURCES += main.cpp \
     branch/BranchFactory.cpp \
     branch/LSystem.cpp \
     lib/CS123Matrix.cpp \
+    resourceloader.cpp \
+    glm.cpp \
+    targa.cpp \
     particleemitter.cpp
 
 HEADERS += mainwindow.h \
@@ -35,6 +38,9 @@ HEADERS += mainwindow.h \
     lib/CS123Algebra.h \
     lib/CS123Common.h \
     particleemitter.h \
+    resourceloader.h \
+    glm.h \
+    targa.h \
     common.h
 
 

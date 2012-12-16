@@ -40,6 +40,13 @@ private:
     void keyReleaseEvent(QKeyEvent *event);
     int loadTexture(const QString &filename, int id);
     void paintMountains();
+    void initializeShaders();
+    void paintEverything();
+    void renderTexturedQuad(int width, int height);
+    void applyOrthogonalCamera(float width, float height);
+    void createBlurKernel(int radius, int width, int height, GLfloat* kernel, GLfloat* offsets);
+    void renderBlur(int width, int height);
+
 
 private slots:
     void tick();
@@ -60,6 +67,10 @@ private:
     Branch *m_branch;
     float current_mid;
     ParticleEmitter* m_emitter;
+    QHash<QString, QGLShaderProgram *> m_shaderPrograms; // hash map of all shader programs
+    QHash<QString, QGLFramebufferObject *> m_framebufferObjects; // hash map of all framebuffer objects
+
+
 
 };
 
