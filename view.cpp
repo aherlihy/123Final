@@ -30,6 +30,44 @@ View::View(QWidget *parent) : QGLWidget(parent), m_timer(this), m_fps(60.0f), m_
     m_bterrain = new bottom_terrain();
     m_bterrain->populateTerrain();
     m_bterrain->computeNormals();
+
+
+    int gridlength = m_bterrain->m_gridLength;
+    Vector3 *normalmap = m_bterrain->m_normalMap;
+    WorldPoint *terrain = m_bterrain->m_terrain;
+    for (int i=0; i<gridlength; i++) {
+        for (int j=0; j<gridlength; j++) {
+            float temp;
+
+            temp = normalmap[i*gridlength + j].z;
+            normalmap[i*gridlength + j].z = normalmap[i*gridlength + j].y;
+            normalmap[i*gridlength + j].y = temp;
+            normalmap[i*gridlength + j] = -normalmap[i*gridlength + j];
+            normalmap[i*gridlength + j].normalize();
+//            std::cout << normalmap[i*gridlength + j] << "\n";
+
+            temp = terrain[i*gridlength + j].z;
+            terrain[i*gridlength + j].z = terrain[i*gridlength + j].y;
+            terrain[i*gridlength + j].y = temp;
+        }
+     }
+
+
+
+
+    m_branches = new RenderBranch[500];
+    m_factory = new BranchFactory();
+    for (int i=0; i<500; i++) {
+        m_branches[i].branch = m_factory->generateBranch(7);
+        float theta = urand(0, 2*M_PI);
+        m_branches[i].dir = urand(0, 360);
+        m_branches[i].height = (float)i/10.0;
+        m_branches[i].slope = urand(-5, 30);
+    }
+
+
+
+
     //setAutoBufferSwap(false);
     //setFocusPolicy(Qt::StrongFocus);
 
@@ -41,13 +79,15 @@ View::View(QWidget *parent) : QGLWidget(parent), m_timer(this), m_fps(60.0f), m_
 View::~View()
 {
     gluDeleteQuadric(m_quadric);
+
+    delete [] m_branches;
 //    m_branches->clear();
 //    delete m_branches;
 //    if (m_factory) delete m_factory;
 }
 void View::initializeShaders() {
     const QGLContext *ctx = context();
-    m_shaderPrograms["blur"] = ResourceLoader::newShaderProgram(ctx, "/home/aherlihy/course/cs123/123Final/t_blur.vert", "/home/aherlihy/course/cs123/123Final/t_blur.frag");
+//    m_shaderPrograms["blur"] = ResourceLoader::newShaderProgram(ctx, "./data/t_blur.vert", "./data/t_blur.frag");
 
 
 
@@ -94,10 +134,10 @@ void View::initializeGL()
     glGenTextures(3, id);
     glEnable(GL_TEXTURE_2D);
 
-    if(loadTexture("/home/aherlihy/course/cs123/123Final/data/bark1.jpg", id[0])==-1) {
+    if(loadTexture("data/bark1.jpg", id[0])==-1) {
         printf("BARK TEXTURE DOESN'T EXIST\n");
     }
-    if(loadTexture("/home/aherlihy/course/cs123/123Final/data/desert2.jpg&size=1024", id[1])==-1) {
+    if(loadTexture("data/desert2.jpg&size=1024", id[1])==-1) {
         printf("DESERT TEXTURE DOESNT EXIST\n");
     }
     deserttexture = id[1];
@@ -128,32 +168,43 @@ void View::initializeGL()
     glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 1);
 
     // Set up GL_LIGHT0 with a position and lighting properties
-    GLfloat ambientLight[] = {0.1f, 0.1f, 0.1f, 1.0f};
+    GLfloat ambientLight[] = {0.0f, 0.0f, 0.0f, 1.0f};
     GLfloat diffuseLight[] = { 1.0f, 1.0f, 1.0, 1.0f };
-    GLfloat specularLight[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-    GLfloat position[] = { 0.0f, 0.0f, 1000.0f, 0.0f };
-    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
+    GLfloat position[] = { 1000.0f, 1000.0f, 2000.0f, 0.0f };
+
+    //glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
     glLightfv(GL_LIGHT0, GL_POSITION, position);
+
     glEnable(GL_LIGHT0);
+
+//    GLfloat diffuse[] = {0.5f, 0.5f, 0.5f, 1.0f};
+//    GLfloat position[] = {1000, 1000, 10, 0};
+//    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
+//    glLightfv(GL_LIGHT0, GL_POSITION, position);
+
+
+
+    //glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
+    //glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight);
+    //glLightfv(GL_LIGHT0, GL_POSITION, position);
 
 
     // Set up fog
 
-    GLfloat fogColor[4]= {1.0,1.0,1.0, 1.0f};
-    glEnable(GL_FOG);
-    fogMode = GL_EXP;
-    glFogi(GL_FOG_MODE, fogMode);
-    glFogfv(GL_FOG_COLOR, fogColor);
-    glFogf(GL_FOG_DENSITY, 0.015);
-    glHint(GL_FOG_HINT, GL_DONT_CARE);
-    glFogf(GL_FOG_START, 1.0);
-    glFogf(GL_FOG_END, 25.0);
+//    GLfloat fogColor[4]= {0.5,0.5,0.5,.0f};
+//    glEnable(GL_FOG);
+//    fogMode = GL_EXP2;
+//    glFogi(GL_FOG_MODE, fogMode);
+//    glFogfv(GL_FOG_COLOR, fogColor);
+//    glFogf(GL_FOG_DENSITY, 0.0015);
+//    glHint(GL_FOG_HINT, GL_NICEST);
+//    glFogf(GL_FOG_START, 1.0);
+//    glFogf(GL_FOG_END, 200.0);
 
 
     // Set the screen color when the color buffer is cleared (in RGBA format)
-    glClearColor(1.0,1.0,1.0, 1.0f);
+    glClearColor(0.001,0.0,0.01, 1.0f);
 
     // Load the initial settings
     updateSettings();
@@ -181,7 +232,9 @@ void View::initializeGL()
 
 
     initializeShaders();
-    m_emitter = new ParticleEmitter(loadTexture(":textures/particle1.bmp", id[2]));
+    m_emitter = new ParticleEmitter(loadTexture(":textures/particle1.bmp", id[2]), float3(1.0, 1.0, 1.0), float3(0.0, 3.0, -7.0), float3(0.0, 0.0, -0.004), 0.1, 20.0, 30.0/10000.0, 5000);
+//    m_emitter->force().z = -0.1;
+//    m_emitter->velocity().z = -5.0;
 }
 
 void View::paintTrunk() {
@@ -207,16 +260,47 @@ void View::paintTrunk() {
 
 //    }
 
-    float old_r = 50;
-    float new_r = 50;
-    for(float h = 1;h<100;h++) {
-        glColor4f(1.0f,0.0,0.0,1.0f);
-        new_r = 100.0f/h;
-        gluCylinder(m_quadric, old_r, new_r, 0.25f, 100, 100);
-        glTranslatef(0.0,0.0,0.25);
+
+    float r_cir = 2.5 * TREE_RAD;
+    int tess = 20;
+    float incr = r_cir/(float)tess;
+
+    glColor4f(0.05f, 0.01, 0.0, 1.0f);
+    float old_r = r_cir + TREE_RAD;
+    float new_r;
+    for (float h = incr; h <= r_cir; h += incr) {
+        float x = sqrt(r_cir*r_cir - (h - r_cir)*(h - r_cir));
+        float new_r = r_cir - x + TREE_RAD;
+        gluCylinder(m_quadric, old_r, new_r, incr, 20, 2);
+        glTranslatef(0.0, 0.0, incr);
         old_r = new_r;
     }
-    gluCylinder(m_quadric, new_r, new_r, 1150.0f, 100, 100);
+    gluCylinder(m_quadric, TREE_RAD, TREE_RAD/3.0, TREE_HEIGHT, 20, 10);
+
+    glScalef(20.0, 20.0, 20.0);
+    //glRotatef(90, 1.0, 0.0, 0.0);
+    for (int i=0; i<50; i++) {
+        glPushMatrix();
+        glTranslatef(0, 0, m_branches[i].height);
+        glRotatef(m_branches[i].slope, 0.0, 1.0, 0.0);
+        glRotatef(10*m_branches[i].dir, 0.0, 0.0, 1.0);
+
+        glRotatef(90, 1.0, 0.0, 0.0);
+        m_branches[i].branch->drawBranch(m_quadric);
+        glPopMatrix();
+    }
+
+
+
+//    float old_r = 50;
+//    float new_r = 50;
+//    for(float h = 1;h<30;h++) {
+//        glColor4f(1.0f,0.0,0.0,1.0f);
+//        new_r = 30.0f/h;
+//        gluCylinder(m_quadric, old_r, new_r, 0.25f, 10, 2);
+//        glTranslatef(0.0,0.0,0.25);
+//        old_r = new_r;
+//    }
 
 
     glPopMatrix();
@@ -230,56 +314,72 @@ void View::paintTrunk() {
 void View::paintMountains() {
     glPushMatrix();
     glScalef(20.0,20.0,20.0);
-    glColor4f(0.0,0.0,0.0,1.0);
-    for(int i=0;i<m_bterrain->m_gridLength-1;i++) {
-            glBegin(GL_TRIANGLE_STRIP);
+    glColor4f(0.0,1.0,0.0,1.0);
 
-            for (int j=0;j<m_bterrain->m_gridLength;j++) {
+    int gridlength = m_bterrain->m_gridLength;
 
-                    int index = m_bterrain->getIndex(GridIndex(i,j));
-                    int index2 = m_bterrain->getIndex(GridIndex(i+1,j));
+    for (int i=0; i<gridlength-1; i++) {
+        glBegin(GL_TRIANGLE_STRIP);
+        for (int j=0; j<gridlength-1; j++) {
+//            float x = (float)j/(float)gridlength;
+//            float y = (float)i/(float)gridlength;
+//            float inc = 1.0/(float)gridlength;
 
-                    Vector3 ter1 = m_bterrain->m_terrain[index];
-                    Vector3 ter2 = m_bterrain->m_terrain[index2];
-                    Vector3 nor1 = m_bterrain->m_normalMap[index];
-                    Vector3 nor2 = m_bterrain->m_normalMap[index2];
+            glNormal3dv(m_bterrain->m_normalMap[i*gridlength + j].data);
+            glVertex3dv(m_bterrain->m_terrain[i*gridlength + j].data);
 
-                    float temp = ter1.z;
-                    ter1.z = ter1.y;
-                    ter1.y = temp;
-                    temp = ter2.z;
-                    ter2.z=ter2.y;
-                    ter2.y = temp;
-
-
-                    temp = nor1.z; nor1.y=nor1.z; nor1.z=temp;
-                    temp = nor2.z; nor2.y=nor2.z; nor2.z=temp;
-
-
-                    if(sqrt((ter1.x)*(ter1.x) + (ter1.y)*(ter1.y))<2.5f) {
-                        ter1.z=-1;
-                    }
-                    if(sqrt(ter2.x*ter2.x + ter2.y*ter2.y)<2.5f) {
-                        ter2.z=-1;
-                    }
-
-        //            glTexCoord2f(
-        //                    ((float)i/(float)length),
-        //                    1.0f-((float)j/(float)length));
-                    glNormal3dv(nor2.data);
-                    glVertex3dv(ter2.data);
-
-
-
-        //            glTexCoord2f(
-        //                    ((float)i+1.0f)/(float)length,
-        //                    1.0f-((float)j/(float)length));
-                    glNormal3dv(nor1.data);
-                    glVertex3dv(ter1.data);
-            }
+            glNormal3dv(m_bterrain->m_normalMap[(i+1)*gridlength + j].data);
+            glVertex3dv(m_bterrain->m_terrain[(i+1)*gridlength + j].data);
+        }
         glEnd();
-
     }
+
+//            for(int i=0;i<gridlength-1;i++) {
+//                    glBegin(GL_TRIANGLE_STRIP);
+//            for (int j=0;j<m_bterrain->m_gridLength;j++) {
+
+//                    int index = m_bterrain->getIndex(GridIndex(i,j));
+//                    int index2 = m_bterrain->getIndex(GridIndex(i+1,j));
+
+//                    Vector3 ter1 = m_bterrain->m_terrain[index];
+//                    Vector3 ter2 = m_bterrain->m_terrain[index2];
+//                    Vector3 nor1 = m_bterrain->m_normalMap[index];
+//                    Vector3 nor2 = m_bterrain->m_normalMap[index2];
+
+//                    float temp = ter1.z;
+//                    ter1.z = ter1.y;
+//                    ter1.y = temp;
+//                    temp = ter2.z;
+//                    ter2.z=ter2.y;
+//                    ter2.y = temp;
+
+
+//                    temp = nor1.z; nor1.y=nor1.z; nor1.z=temp;
+//                    temp = nor2.z; nor2.y=nor2.z; nor2.z=temp;
+//                    //std::cout << "nor1:" << nor1 << "\n";
+//                    //std::cout << "nor2:" << nor2 << "\n";
+
+
+
+//        //            glTexCoord2f(
+//        //                    ((float)i/(float)length),
+//        //                    1.0f-((float)j/(float)length));
+//                    nor2.y = -nor2.y;
+//                    glNormal3dv(nor2.data);
+//                    glVertex3dv(ter2.data);
+
+
+
+//        //            glTexCoord2f(
+//        //                    ((float)i+1.0f)/(float)length,
+//        //                    1.0f-((float)j/(float)length));
+//                    nor1.y = -nor1.y;
+//                    glNormal3dv(nor1.data);
+//                    glVertex3dv(ter1.data);
+//            }
+//        glEnd();
+
+//    }
     glPopMatrix();
 }
 
@@ -289,9 +389,12 @@ void View::paintEverything() {
 
     glEnable(GL_DEPTH_TEST);
     paintTrunk();
-    paintMountains();
+//    paintMountains();
     m_emitter->updateParticles();       //Move the particles
+    glPushMatrix();
+    glTranslatef(0, 0, 90);
     m_emitter->drawParticles(m_quadric);         //Draw the particles
+    glPopMatrix();
 
     glDisable(GL_DEPTH_TEST);
 
@@ -343,64 +446,72 @@ void View::paintGL()
       MOVE CAMERA
     **/
     float time = m_increment++ / (float) m_fps;
-    //comment out to get it to freeze when click
-    //m_camera.eye.x=settings.view_rad*cos(time);
-    //m_camera.eye.y=settings.view_rad*sin(time);
-    //m_camera.eye.z=time;
+
+
+//    m_camera.eye.x = settings.view_rad;
+//    m_camera.eye.y = settings.view_rad;
+//    m_camera.eye.z = 100;
+
+    //comment out to get it to ze when click
+    m_camera.eye.x=3*settings.view_rad*cos(time);
+    m_camera.eye.y=3*settings.view_rad*sin(time);
+    m_camera.eye.z=time + 200;
     if(settings.camera_control==TIMER_CONTROL) {
         m_camera.center.x = 0.0f, m_camera.center.y = 0.0f;
     //uncomment to get it to freeze when clicking
-        m_camera.eye.x=settings.view_rad*cos(time);
-        m_camera.eye.y=settings.view_rad*sin(time);
-        m_camera.eye.z=time+2;
+//        m_camera.eye.x=settings.view_rad*cos(time);
+//        m_camera.eye.y=settings.view_rad*sin(time);
+//        m_camera.eye.z=time+2;
     }
     /**
       SET UP VALUES FOR SHADER
     **/
 
-    int radius = 2;
-    int dim = radius * 2 + 1;
-    GLfloat kernel[dim * dim];
-    GLfloat offsets[dim * dim * 2];
-    createBlurKernel(radius, this->width(), this->height(), &kernel[0], &offsets[0]);
-
-    /**
-      RENDER TO FBO 1
-    **/
-    // Render the normal scene to fb0
-    m_framebufferObjects["fbo_0"]->bind();
-
     updateCamera();
     paintEverything();
+//    int radius = 2;
+//    int dim = radius * 2 + 1;
+//    GLfloat kernel[dim * dim];
+//    GLfloat offsets[dim * dim * 2];
+//    createBlurKernel(radius, this->width(), this->height(), &kernel[0], &offsets[0]);
 
-    m_framebufferObjects["fbo_0"]->release();
+//    /**
+//      RENDER TO FBO 1
+//    **/
+//    // Render the normal scene to fb0
+//    m_framebufferObjects["fbo_0"]->bind();
 
-    //(now normal scene is stored in fb0)
+//    updateCamera();
+//    paintEverything();
 
-    // Copy the rendered scene into framebuffer 1
-    m_framebufferObjects["fbo_0"]->blitFramebuffer(m_framebufferObjects["fbo_1"],
-                                                   QRect(0, 0, this->width(), this->height()), m_framebufferObjects["fbo_0"],
-                                                   QRect(0, 0, this->width(), this->height()), GL_COLOR_BUFFER_BIT, GL_NEAREST); //normal scene is stored in fb1
-    /**
-      BIND SHADER + DRAW
-    **/
-    const QString name1 = "offsets";
-    m_shaderPrograms["blur"]->setUniformValueArray(m_shaderPrograms["blur"]->uniformLocation(name1), &offsets[0], dim*dim*2, 2);
-    const QString name2 = "kernel";
-    m_shaderPrograms["blur"]->setUniformValueArray(m_shaderPrograms["blur"]->uniformLocation(name2), &kernel[0], dim*dim, 1);
+//    m_framebufferObjects["fbo_0"]->release();
 
-    m_shaderPrograms["blur"]->bind();
+//    //(now normal scene is stored in fb0)
+
+//    // Copy the rendered scene into framebuffer 1
+//    m_framebufferObjects["fbo_0"]->blitFramebuffer(m_framebufferObjects["fbo_1"],
+//                                                   QRect(0, 0, this->width(), this->height()), m_framebufferObjects["fbo_0"],
+//                                                   QRect(0, 0, this->width(), this->height()), GL_COLOR_BUFFER_BIT, GL_NEAREST); //normal scene is stored in fb1
+//    /**
+//      BIND SHADER + DRAW
+//    **/
+//    const QString name1 = "offsets";
+////    m_shaderPrograms["blur"]->setUniformValueArray(m_shaderPrograms["blur"]->uniformLocation(name1), &offsets[0], dim*dim*2, 2);
+//    const QString name2 = "kernel";
+////    m_shaderPrograms["blur"]->setUniformValueArray(m_shaderPrograms["blur"]->uniformLocation(name2), &kernel[0], dim*dim, 1);
+
+////    m_shaderPrograms["blur"]->bind();
 
 
-    glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_1"]->texture());
+//    glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_1"]->texture());
 
-    applyOrthogonalCamera(this->width(),this->height());
+//    applyOrthogonalCamera(this->width(),this->height());
 
-    renderTexturedQuad(this->width(),this->height());
+//    renderTexturedQuad(this->width(),this->height());
 
-    m_shaderPrograms["blur"]->release();//release shader
+//    m_shaderPrograms["blur"]->release();//release shader
 
-    glBindTexture(GL_TEXTURE_2D, 0);
+//    glBindTexture(GL_TEXTURE_2D, 0);
 
     //NOT USING
 //    m_framebufferObjects["fbo_2"]->release();
@@ -409,7 +520,7 @@ void View::paintGL()
 //    glBindTexture(GL_TEXTURE_2D, m_framebufferObjects["fbo_2"]->texture());
 //    renderTexturedQuad(width,height);
 //    glBindTexture(GL_TEXTURE_2D, 0);
-    glFlush();
+//    glFlush();
 }
 
 void View::resizeGL(int w, int h)

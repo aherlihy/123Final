@@ -1,9 +1,8 @@
 #include "Branch.h"
 
 
-Branch::Branch(GLUquadric *quad, LetterList list)
+Branch::Branch(LetterList list)
 {
-    m_quad = quad;
     m_list = list;
     m_segs = new vector<Seg >();
 
@@ -16,7 +15,7 @@ Branch::~Branch() {
     if (m_segs) delete m_segs;
 }
 
-void Branch::drawBranch(void)
+void Branch::drawBranch(GLUquadric *quadric)
 {
     for (int i=0; i<m_segs->size(); i++) {
         glPushMatrix();
@@ -33,16 +32,16 @@ void Branch::drawBranch(void)
 //        glRotatef(theta, 0.0, 0.0, 1.0);
         glTranslatef(m_pos.x, m_pos.y, m_pos.z);
 
-        glRotatef(60.0, 0.0, 1.0, 0.0);
+        //glRotatef(60.0, 0.0, 1.0, 0.0);
         glRotatef(m_dir, 0.0, 0.0, 1.0);
 
 
         glMultMatrixd(cur.trans.data);
         if (cur.len > EPSILON) {
+            gluSphere(quadric, cur.top, 10, 5);
             glTranslated(0, 0, -cur.len);
-            gluCylinder(m_quad, cur.base, cur.top, cur.len, 10, 1);
+            gluCylinder(quadric, cur.base, cur.top, cur.len, 10, 1);
         }
-        gluSphere(m_quad, cur.base, 10, 5);
         glPopMatrix();
     }
 }

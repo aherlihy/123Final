@@ -25,7 +25,8 @@ SOURCES += main.cpp \
     resourceloader.cpp \
     glm.cpp \
     targa.cpp \
-    particleemitter.cpp
+    particleemitter.cpp \
+    trunk/trunk.cpp
 
 HEADERS += mainwindow.h \
     view.h \
@@ -41,9 +42,10 @@ HEADERS += mainwindow.h \
     resourceloader.h \
     glm.h \
     targa.h \
-    common.h
+    common.h \
+    trunk/trunk.h
 
 
 FORMS += mainwindow.ui
-INCLUDEPATH += branch lib
-DEPENDPATH += branch lib
+INCLUDEPATH += branch lib trunk
+DEPENDPATH += branch lib trunk

@@ -13,7 +13,7 @@
 class BranchFactory
 {
 public:
-    BranchFactory(GLUquadric *quadric);
+    BranchFactory();
     ~BranchFactory();
     Branch *generateBranch(int n);
 
@@ -27,7 +27,6 @@ private:
     LetterList var2rule(void);
     LetterList var3rule(void);
 
-    GLUquadric *m_quadric;
 };
 
 #endif // BRANCHFACTORY_H

@@ -1,8 +1,7 @@
 #include "BranchFactory.h"
 
-BranchFactory::BranchFactory(GLUquadric *quadric)
+BranchFactory::BranchFactory()
 {
-    m_quadric = quadric;
     m_lsys = new LSystem();
 }
 
@@ -25,7 +24,7 @@ Branch *BranchFactory::generateBranch(int n)
 
     for (int i=0; i<n; i++) m_lsys->iterate();
 
-    Branch *branch = new Branch(m_quadric, m_lsys->getList());
+    Branch *branch = new Branch(m_lsys->getList());
     branch->parseList();
     return branch;
 }

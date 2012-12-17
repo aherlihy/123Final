@@ -21,9 +21,9 @@
 #define POP         __C_BRACK
 #define JITTER      C_0
 
-#define RAND_V      M_PI*0.16
-#define RAND_H      M_PI*0.27
-#define RAND_H_MIN  -M_PI*0.07
+#define RAND_V      M_PI*0.2
+#define RAND_H      M_PI*0.2
+#define RAND_H_MIN  -M_PI*0.05
 #define RAND_L      3.0
 #define RAND_L_MIN  0.2
 #define RADIUS      0.14
@@ -45,10 +45,10 @@ typedef struct {
 class Branch
 {
 public:
-    Branch(GLUquadric *quad, LetterList list);
+    Branch(LetterList list);
     ~Branch();
 
-    void drawBranch(void);
+    void drawBranch(GLUquadric *quadric);
     void drawSeg(Seg seg);
     void setList(LetterList list);
     void parseList(void);
@@ -60,7 +60,6 @@ public:
 private:
     LetterList m_list;
     std::vector<Seg> *m_segs;
-    GLUquadric *m_quad;
     double randDouble(double lo, double hi);
     Vector3 m_pos;
     double m_dir;

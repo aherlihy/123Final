@@ -69,7 +69,8 @@ public:
       * Draws each particle as a small, texture-mapped square of side-length m_scale.
       * Each square should be in the X/Y plane at Z = the particle's position's Z-coordinate.
       */
-    void drawParticles(GLUquadric *m_quadric);
+    void drawParticles(GLUquadric *quadric);
+    //void drawParticles();
     /**
       * You need to fill this in.
       *
@@ -119,6 +120,7 @@ protected:
     Particle *m_particles;
     /** The maximum number of particles in the scene (same as the size of the m_particles array) */
     unsigned m_maxParticles;
+    unsigned m_activeParticles;
     /** The ID of the OpenGL texture that is used to draw particles */
     GLuint m_textureID;
     /** The speed that particles move in the simulation */

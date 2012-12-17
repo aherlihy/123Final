@@ -6,8 +6,6 @@
 
 bottom_terrain::bottom_terrain()
 {
-    // set up base terrain
-
     // Determines how much each vertex gets perturbed. The larger the value, the less pertubration will occur per recursive value
     m_decay = 2;
 
@@ -15,13 +13,14 @@ bottom_terrain::bottom_terrain()
     m_depth = 8;
 
     // The roughness of your terrain. Higher roughnesses entail taller mountains and deeper valleys. Lower values entail small hills and shallow valleys
-    m_roughness = 5;
+    m_roughness = 6;
 
-    // Seed a random number, the terrain will change based on what number is seeded
+    // Seed a random number, your terrain will change based on what number you seed
     srand(0);
+
+
     // Imagining your terrain as a square grid of points, gridLength is the number of elements on one side, or the length of a side of the grid
     m_gridLength = (1 << m_depth)+1;
-    printf("gridlength = %i\n", m_gridLength);
 
     // Knowing the number of elements on a side gives us the total number of elements in the grid
     int terrain_array_size = m_gridLength * m_gridLength;
@@ -41,12 +40,6 @@ bottom_terrain::~bottom_terrain() {
 }
 void bottom_terrain::subdivideSquare(GridIndex topleft, GridIndex botright, GLint curDepth)
 {
-    //printf("recurrs %i times\n", curDepth);
-
-    if(curDepth<=0) {
-        //printf("reached end of recursion\n");
-        return;
-    }
     // TL--TM--TR    +---> x
     // |   |   |     |
     // ML--MM--MR    V
@@ -59,62 +52,57 @@ void bottom_terrain::subdivideSquare(GridIndex topleft, GridIndex botright, GLin
     GridIndex BL = GridIndex(topleft.x, botright.y);
     GridIndex BR = GridIndex(botright.x, botright.y);
 
+    int lxi = TL.x;
+    int mxi = (TL.x + BR.x)/2;
+    int rxi = BR.x;
+    int tyi = TL.y;
+    int myi = (TL.y + BR.y)/2;
+    int byi = BR.y;
+
+    GridIndex TM = GridIndex((TL.x + BR.x)/2, TL.y);
+    GridIndex ML = GridIndex(TL.x, (TL.y + BL.y)/2);
+    GridIndex MM = GridIndex((TL.x + TR.x)/2, (TL.y + BL.y)/2);
+    GridIndex MR = GridIndex(TR.x, (TR.y + BR.y)/2);
+    GridIndex BM = GridIndex((BL.x + BR.x)/2, BL.y);
+
     // corner vertices on the terrain (in the grid space [x,y,z])
     WorldPoint &vTL = m_terrain[getIndex(TL)];
     WorldPoint &vTR = m_terrain[getIndex(TR)];
     WorldPoint &vBL = m_terrain[getIndex(BL)];
     WorldPoint &vBR = m_terrain[getIndex(BR)];
 
-    //
-    // @TODO: [Lab 5] Above, we demonstrate how to find
-    //                  a) the coordinates in the grid of the corner vertices (in grid space)
-    //                  b) the actual (X,Y,Z) points in the terrain map
-    //
-    //         Now, you just need to:
-    //                    compute the midpoints in grid space
-    //                    average the heights of the neighboring vertices
-    //                    write the new points to the terrain map.
-    //                    Remember to perturb the new center vertex by a random amount.
-    //         Scale this perturbation by curDepth so that the perturbation factor is less
-    //         as you recur deeper.
-    //
-    //         Remember that [X,Y] grid points map to [X,Z] in world space -- the Y
-    //         coordinate in world space will be used for the height.
-    //
-    //         Once you compute these remaining 5 points, you will need to recur on the
-    //         four sub-squares you've just created. To do this, you'll call subdivideSquare
-    //         recursively, decrementing curDepth by one.
+    WorldPoint &vTM = m_terrain[getIndex(TM)];
+    WorldPoint &vML = m_terrain[getIndex(ML)];
+    WorldPoint &vMM = m_terrain[getIndex(MM)];
+    WorldPoint &vMR = m_terrain[getIndex(MR)];
+    WorldPoint &vBM = m_terrain[getIndex(BM)];
 
-    int mid_x_index = (TL.x + TR.x)/2.00;
-    int mid_y_index = (TL.y + BL.y)/2.00;
+    float scale = 20.0 / (float)m_gridLength;
+    vTM.x = scale * (float)TM.x - 10.0;
+    vML.x = scale * (float)ML.x - 10.0;
+    vMM.x = scale * (float)MM.x - 10.0;
+    vMR.x = scale * (float)MR.x - 10.0;
+    vBM.x = scale * (float)BM.x - 10.0;
+    vTM.z = scale * (float)TM.y - 10.0;
+    vML.z = scale * (float)ML.y - 10.0;
+    vMM.z = scale * (float)MM.y - 10.0;
+    vMR.z = scale * (float)MR.y - 10.0;
+    vBM.z = scale * (float)BM.y - 10.0;
 
-    Vector3 l_mid = (vBL+vTL)/2;
-    Vector3 r_mid = (vTR+vBR)/2;
-    Vector3 t_mid = (vTL+vTR)/2;
-    Vector3 b_mid = (vBL+vBR)/2;
+    vTM.y = (vTL.y + vTR.y)/2;
+    vML.y = (vTL.y + vBL.y)/2;
+    vMR.y = (vTR.y + vBR.y)/2;
+    vBM.y = (vBL.y + vBR.y)/2;
+    vMM.y = (vTL.y + vTR.y + vBL.y + vBR.y)/4;
+    vMM.y += getPerturb(curDepth);
 
-    Vector3 center = (vBL+vTL+vBR+vTR)/4;
-    center.y+=getPerturb(curDepth);
-
-    GridIndex lm = (TL+BL)/2;
-    GridIndex rm = (TR+BR)/2;
-    GridIndex tm = (TR + TL)/2;
-    GridIndex bm = (BL + BR)/2;
-    GridIndex c(mid_x_index, mid_y_index);
-
-    m_terrain[getIndex(lm)] = l_mid;
-    m_terrain[getIndex(rm)] = r_mid;
-    m_terrain[getIndex(tm)] = t_mid;
-    m_terrain[getIndex(bm)] = b_mid;
-    m_terrain[getIndex(c)] = center;
-
-    int newDepth = curDepth-1;
-
-    subdivideSquare(TL, c, newDepth);
-    subdivideSquare(lm, bm, newDepth);
-    subdivideSquare(tm, rm, newDepth);
-    subdivideSquare(c, BR, newDepth);
-
+    if (curDepth > 0) {
+        curDepth -= 1;
+        subdivideSquare(TL, MM, curDepth);
+        subdivideSquare(TM, MR, curDepth);
+        subdivideSquare(ML, BM, curDepth);
+        subdivideSquare(MM, BR, curDepth);
+    }
 }
 
 void bottom_terrain::computeNormals()
@@ -135,19 +123,20 @@ void bottom_terrain::computeNormals()
             // @TODO: [Lab 5] Compute a list of vectors from vertexPosition to each neighbor in neighbors
             Vector3 *offsets = new Vector3[numNeighbors];
             for (int i = 0; i < numNeighbors; ++i)
-                offsets[i] = Vector3(-vertexPosition.x + neighbors.at(i)->x, -vertexPosition.y + neighbors.at(i)->y, -vertexPosition.z + neighbors.at(i)->z);
+                offsets[i] = *neighbors[i] - vertexPosition;
 
             // @TODO: [Lab 5] Compute cross products for each neighbor
             Vector3 *normals = new Vector3[numNeighbors];
             for (int i = 0; i < numNeighbors; ++i)
-                normals[i] = offsets[i].cross(offsets[((i+1)%numNeighbors)]); // TODO
+                normals[i] = offsets[i].cross(offsets[(i+1)%numNeighbors].data);
 
             // Average the normals and store the final value in the normal map
-            Vector3 sum = Vector3(0.0,0.0,0.0);
+            Vector3 sum = Vector3::zero();
             for (int i = 0; i < numNeighbors; ++i)
                 sum += normals[i];
             m_normalMap[terrainIndex] = sum.getNormalized();
 
+            //m_normalMap[terrainIndex] = Vector3(0,1,0);
             delete[] offsets;
             delete[] normals;
         }
@@ -161,8 +150,9 @@ void bottom_terrain::computeNormals()
  */
 double bottom_terrain::getPerturb(int cur_depth)
 {
-    double toret = (m_roughness * pow((double)cur_depth / m_depth, m_decay) * ((rand() %    100) / 100.0));
-    return /*(toret<0)? 0.5+toret :*/ toret;
+    return m_roughness
+           * pow((double)cur_depth / m_depth, m_decay)
+           * ((rand() % 200-100) / 100.0);
 }
 
 /****************************************************************************************************************/
@@ -186,14 +176,32 @@ void bottom_terrain::populateTerrain()
     m_terrain[getIndex(trg)] = tr;
     m_terrain[getIndex(blg)] = bl;
     m_terrain[getIndex(brg)] = br;
+
     subdivideSquare(tlg, brg, m_depth);
-    for(int i=0;i<m_gridLength;i++) {
-        for(int j=0;j<m_gridLength;j++) {
-            int index = getIndex(j,i);
-           // printf("[%f, %f, %f]", m_terrain[index].x, m_terrain[index].y, m_terrain[index].z);
+
+    for (int i=0; i<m_gridLength; i++) {
+        for (int j=0; j<m_gridLength; j++) {
+
         }
-      //  printf("\n");
     }
+
+
+//    float halflen = (float)m_gridLength/2.0;
+//    for(int i=0;i<m_gridLength;i++) {
+//        for(int j=0;j<m_gridLength;j++) {
+//            float di = ((float)(i - halflen))/halflen;
+//            float dj = ((float)(j - halflen))/halflen;
+//            float rad = di*di + dj*dj;
+//            if (rad < 0.1) {
+//                m_terrain[i*m_gridLength + j].y = 0.0;
+//            } else if (rad < 0.3) {
+//                m_terrain[i*m_gridLength + j].y *= (rad - 0.1)/0.3;
+//            }
+//            //int index = getIndex(j,i);
+//           // printf("[%f, %f, %f]", m_terrain[index].x, m_terrain[index].y, m_terrain[index].z);
+//        }
+//      //  printf("\n");
+//    }
 }
 
 /**

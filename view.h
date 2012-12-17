@@ -12,6 +12,18 @@
 #include "particleemitter.h"
 
 
+#define TREE_RAD 7.0
+#define TREE_HEIGHT 200.0
+#define TREE_RATIO 4.0
+
+typedef struct {
+    Branch *branch;
+    float dir;
+    float slope;
+    float height;
+} RenderBranch;
+
+
 class View : public QGLWidget
 {
     Q_OBJECT
@@ -63,8 +75,7 @@ private:
     bottom_terrain* m_bterrain;
 
     BranchFactory *m_factory;
-    std::deque<Branch > *m_branches;
-    Branch *m_branch;
+    RenderBranch *m_branches;
     float current_mid;
     ParticleEmitter* m_emitter;
     QHash<QString, QGLShaderProgram *> m_shaderPrograms; // hash map of all shader programs
