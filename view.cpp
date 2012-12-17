@@ -107,6 +107,18 @@ void View::initializeShaders() {
 
 void View::initializeGL()
 {
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_COLOR_MATERIAL);
+    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+
+//    glLightfv(GL_LIGHT0, GL_)
+
+
+
+
+
     // All OpenGL initialization *MUST* be done during or after this
     // method. Before this method is called, there is no active OpenGL
     // context and all OpenGL calls have no effect.
@@ -132,7 +144,7 @@ void View::initializeGL()
 //    // Generate a new OpenGL texture ID to put our image into
     GLuint id[3];
     glGenTextures(3, id);
-    glEnable(GL_TEXTURE_2D);
+//    glEnable(GL_TEXTURE_2D);
 
 //    if(loadTexture("data/bark1.jpg", id[0])==-1) {
 //        printf("BARK TEXTURE DOESN'T EXIST\n");
@@ -144,14 +156,14 @@ void View::initializeGL()
 //    barktexture = id[0];
 
     // Bind the ambient and diffuse color of each vertex to the current glColor() value
-    glEnable(GL_COLOR_MATERIAL);
-    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+//    glEnable(GL_COLOR_MATERIAL);
+//    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
 
     // Start with flat shading
-    glShadeModel(GL_SMOOTH);
+//    glShadeModel(GL_SMOOTH);
 
     // Enable depth testing, so that objects are occluded based on depth instead of drawing order
-    glEnable(GL_DEPTH_TEST);
+//    glEnable(GL_DEPTH_TEST);
 
     // Enable back-face culling, meaning only the front side of every face is rendered
     glEnable(GL_CULL_FACE);
@@ -162,21 +174,21 @@ void View::initializeGL()
 
     // Set up global (ambient) lighting
 
-    glEnable(GL_LIGHTING);
-    GLfloat global_ambient[] = { 0.5f,  0.5f,  0.5f, 1.0f };
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
-    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 1);
+//    glEnable(GL_LIGHTING);
+//    GLfloat global_ambient[] = { 0.5f,  0.5f,  0.5f, 1.0f };
+//    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, global_ambient);
+//    glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 1);
 
     // Set up GL_LIGHT0 with a position and lighting properties
-    GLfloat ambientLight[] = {0.0f, 0.0f, 0.0f, 1.0f};
-    GLfloat diffuseLight[] = { 1.0f, 1.0f, 1.0, 1.0f };
-    GLfloat position[] = { 1000.0f, 1000.0f, 2000.0f, 0.0f };
+//    GLfloat ambientLight[] = {0.0f, 0.0f, 0.0f, 1.0f};
+//    GLfloat diffuseLight[] = { 1.0f, 1.0f, 1.0, 1.0f };
+//    GLfloat position[] = { 1000.0f, 1000.0f, 2000.0f, 0.0f };
 
     //glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
-    glLightfv(GL_LIGHT0, GL_POSITION, position);
+//    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight);
+//    glLightfv(GL_LIGHT0, GL_POSITION, position);
 
-    glEnable(GL_LIGHT0);
+//    glEnable(GL_LIGHT0);
 
 //    GLfloat diffuse[] = {0.5f, 0.5f, 0.5f, 1.0f};
 //    GLfloat position[] = {1000, 1000, 10, 0};
@@ -232,7 +244,7 @@ void View::initializeGL()
 
 
     initializeShaders();
-    m_emitter = new ParticleEmitter(loadTexture(":textures/particle1.bmp", id[2]), float3(1.0, 1.0, 1.0), float3(0.0, 5.0, -30.0), float3(0.0, 0.0, -0.004), 0.1, 20.0, 30.0/10000.0, 5000);
+    m_emitter = new ParticleEmitter(0, float3(1.0, 1.0, 1.0), float3(0.0, 5.0, -30.0), float3(0.0, 0.0, -0.004), 0.1, 20.0, 30.0/10000.0, 5000);
 //    m_emitter->force().z = -0.1;
 //    m_emitter->velocity().z = -5.0;
 }
@@ -265,7 +277,7 @@ void View::paintTrunk() {
     int tess = 20;
     float incr = r_cir/(float)tess;
 
-    glColor4f(0.0f, 0.0, 0.0, 1.0f);
+    glColor4f(1.0f, 0.0, 0.0, 1.0f);
     float old_r = r_cir + TREE_RAD;
     float new_r;
     for (float h = incr; h <= r_cir; h += incr) {
@@ -397,14 +409,14 @@ void View::paintEverything() {
 //    GLint l = glGetUniformLocation(m_shaderPrograms["blur"], "pos");
 //    glUniform3f(l, 1.0,1.0,1.0);
 
-    m_shaderPrograms["blur"]->bind();
+//    m_shaderPrograms["blur"]->bind();
 
         m_shaderPrograms["blur"]->setUniformValue((const char*)"posx", (GLfloat)m_camera.eye.x);
         m_shaderPrograms["blur"]->setUniformValue((const char*)"posy", (GLfloat)m_camera.eye.y);
         m_shaderPrograms["blur"]->setUniformValue((const char*)"posz",  (GLfloat)m_camera.eye.z);
 
 
-    glEnable(GL_DEPTH_TEST);
+//    glEnable(GL_DEPTH_TEST);
     paintTrunk();
 
 //    paintMountains();
@@ -416,51 +428,12 @@ void View::paintEverything() {
     m_emitter->drawParticles(m_quadric);         //Draw the particles
     glPopMatrix();
 
-    m_shaderPrograms["blur"]->release();
+//    m_shaderPrograms["blur"]->release();
 
-    glDisable(GL_DEPTH_TEST);
+//    glDisable(GL_DEPTH_TEST);
 
 }
 
-void View::createBlurKernel(int radius, int width, int height,
-                            GLfloat* kernel, GLfloat* offsets) {
-    int size = radius * 2 + 1;
-    float sigma = radius / 3.0f;
-    float twoSigmaSigma = 2.0f * sigma * sigma;
-    float rootSigma = sqrt(twoSigmaSigma * M_PI);
-    float total = 0.0f;
-    float xOff = 1.0f / width, yOff = 1.0f / height;
-    int offsetIndex = 0;
-    for (int y = -radius, idx = 0; y <= radius; ++y){
-        for (int x = -radius; x <= radius; ++x,++idx){
-            float d = x * x + y * y;
-            kernel[idx] = exp(-d / twoSigmaSigma) / rootSigma;
-            total += kernel[idx];
-            offsets[offsetIndex++] = x * xOff;
-            offsets[offsetIndex++] = y * yOff;
-        }
-    }
-    for (int i = 0; i < size * size; ++i){
-        kernel[i] /= total;
-    }
-}
-void View::renderTexturedQuad(int width, int height) {
-    // Clamp value to edge of texture when texture index is out of bounds
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glColor4f(1.0,1.0,1.0,1.0);
-    // Draw the  quad
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex2f(0.0f, 0.0f);
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex2f(width, 0.0f);
-    glTexCoord2f(1.0f, 1.0f);
-    glVertex2f(width, height);
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex2f(0.0f, height);
-    glEnd();
-}
 void View::paintGL()
 {
 
@@ -571,6 +544,11 @@ void View::updateCamera()
     gluPerspective(m_camera.fovy, aspectRatio, m_camera.near, m_camera.far);
     gluLookAt(m_camera.eye.x, m_camera.eye.y, m_camera.eye.z, m_camera.center.x, m_camera.center.y, m_camera.center.z, m_camera.up.x, m_camera.up.y, m_camera.up.z);
 
+    float pos[] = {0.0, 0.0, 0.0};
+
+    glLightfv(GL_LIGHT0, GL_POSITION, pos);
+
+
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
@@ -675,34 +653,34 @@ void View::tick()
     update();
 }
 
-int View::loadTexture(const QString &filename, int id)
-{
-    printf("loading file: %s\n", filename.toStdString().c_str());
-    // Make sure the image file exists
-    QFile file(filename);
-    if (!file.exists())
-        return -1;
+//int View::loadTexture(const QString &filename, int id)
+//{
+//    printf("loading file: %s\n", filename.toStdString().c_str());
+//    // Make sure the image file exists
+//    QFile file(filename);
+//    if (!file.exists())
+//        return -1;
 
-    // Load the file into memory
-    QImage image;
-    image.load(file.fileName());
-    image = image.mirrored(false, true);
-    QImage texture = QGLWidget::convertToGLFormat(image);
+//    // Load the file into memory
+//    QImage image;
+//    image.load(file.fileName());
+//    image = image.mirrored(false, true);
+//    QImage texture = QGLWidget::convertToGLFormat(image);
 
 
-    // Make the texture we just created the new active texture
-    glBindTexture(GL_TEXTURE_2D, id);
+//    // Make the texture we just created the new active texture
+//    glBindTexture(GL_TEXTURE_2D, id);
 
-    // Copy the image data into the OpenGL texture
-    gluBuild2DMipmaps(GL_TEXTURE_2D, 3, texture.width(), texture.height(), GL_RGBA, GL_UNSIGNED_BYTE, texture.bits());
+//    // Copy the image data into the OpenGL texture
+//    gluBuild2DMipmaps(GL_TEXTURE_2D, 3, texture.width(), texture.height(), GL_RGBA, GL_UNSIGNED_BYTE, texture.bits());
 
-    // Set filtering options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//    // Set filtering options
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    // Set coordinate wrapping options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+//    // Set coordinate wrapping options
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    return id;
-}
+//    return id;
+//}

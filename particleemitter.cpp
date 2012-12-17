@@ -101,7 +101,7 @@ void ParticleEmitter::drawParticles(GLUquadric *quadric)
 
 
     //need to disable depth testing
-    glDepthMask(0);
+//    glDepthMask(0);
 
     //bind texture
 //   --- glBindTexture(GL_TEXTURE_2D, m_textureID);
@@ -125,7 +125,7 @@ void ParticleEmitter::drawParticles(GLUquadric *quadric)
 
         glPushMatrix();
         glTranslatef(p.pos.x, p.pos.y, p.pos.z);
-        gluSphere(quadric, 0.1, 5,5);
+        gluSphere(quadric, 1.0, 7,7);
         glPopMatrix();
 //        glVertex3f(p.pos.x-length, p.pos.y+length, p.pos.z);
 //////     ---   glTexCoord2f(0,1);
@@ -144,7 +144,7 @@ void ParticleEmitter::drawParticles(GLUquadric *quadric)
 //    glAccum(GL_RETURN, 1.0);
 
     glPopMatrix();
-    glDepthMask(1);
+//    glDepthMask(1);
 }
 
 //void ParticleEmitter::drawParticles()

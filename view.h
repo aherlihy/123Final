@@ -50,13 +50,11 @@ private:
 
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
-    int loadTexture(const QString &filename, int id);
+//    int loadTexture(const QString &filename, int id);
     void paintMountains();
     void initializeShaders();
     void paintEverything();
-    void renderTexturedQuad(int width, int height);
     void applyOrthogonalCamera(float width, float height);
-    void createBlurKernel(int radius, int width, int height, GLfloat* kernel, GLfloat* offsets);
     void renderBlur(int width, int height);
 
 
