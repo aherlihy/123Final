@@ -58,11 +58,11 @@ View::View(QWidget *parent) : QGLWidget(parent), m_timer(this), m_fps(60.0f), m_
     m_branches = new RenderBranch[500];
     m_factory = new BranchFactory();
     for (int i=0; i<500; i++) {
-        m_branches[i].branch = m_factory->generateBranch(7);
+        m_branches[i].branch = m_factory->generateBranch(6);
         float theta = urand(0, 2*M_PI);
         m_branches[i].dir = urand(0, 360);
-        m_branches[i].height = (float)i/10.0;
-        m_branches[i].slope = urand(-5, 30);
+        m_branches[i].height = (float)i/7.0;
+        m_branches[i].slope = urand(20, 60);
     }
 
 
@@ -87,19 +87,19 @@ View::~View()
 }
 void View::initializeShaders() {
     const QGLContext *ctx = context();
-//    m_shaderPrograms["blur"] = ResourceLoader::newShaderProgram(ctx, "./data/t_blur.vert", "./data/t_blur.frag");
+    m_shaderPrograms["blur"] = ResourceLoader::newShaderProgram(ctx, "/home/aherlihy/course/cs123/123Final/fog.vert", "/home/aherlihy/course/cs123/123Final/fog.frag");
 
 
 
     // Allocate the main framebuffer object for rendering the scene to
     // This needs a depth attachment
-    m_framebufferObjects["fbo_0"] = new QGLFramebufferObject(width(), height(), QGLFramebufferObject::Depth,
-                                                             GL_TEXTURE_2D, GL_RGB16F_ARB);
-    m_framebufferObjects["fbo_0"]->format().setSamples(16);
-    // Allocate the secondary framebuffer obejcts for rendering textures to (post process effects)
-    // These do not require depth attachments
-    m_framebufferObjects["fbo_1"] = new QGLFramebufferObject(width(), height(), QGLFramebufferObject::NoAttachment,
-                                                             GL_TEXTURE_2D, GL_RGB16F_ARB);
+//    m_framebufferObjects["fbo_0"] = new QGLFramebufferObject(width(), height(), QGLFramebufferObject::Depth,
+//                                                             GL_TEXTURE_2D, GL_RGB16F_ARB);
+//    m_framebufferObjects["fbo_0"]->format().setSamples(16);
+//    // Allocate the secondary framebuffer obejcts for rendering textures to (post process effects)
+//    // These do not require depth attachments
+//    m_framebufferObjects["fbo_1"] = new QGLFramebufferObject(width(), height(), QGLFramebufferObject::NoAttachment,
+//                                                             GL_TEXTURE_2D, GL_RGB16F_ARB);
 
 //    m_framebufferObjects["fbo_2"] = new QGLFramebufferObject(width(), height(), QGLFramebufferObject::NoAttachment,
 //                                                             GL_TEXTURE_2D, GL_RGB16F_ARB);
@@ -134,14 +134,14 @@ void View::initializeGL()
     glGenTextures(3, id);
     glEnable(GL_TEXTURE_2D);
 
-    if(loadTexture("data/bark1.jpg", id[0])==-1) {
-        printf("BARK TEXTURE DOESN'T EXIST\n");
-    }
-    if(loadTexture("data/desert2.jpg&size=1024", id[1])==-1) {
-        printf("DESERT TEXTURE DOESNT EXIST\n");
-    }
-    deserttexture = id[1];
-    barktexture = id[0];
+//    if(loadTexture("data/bark1.jpg", id[0])==-1) {
+//        printf("BARK TEXTURE DOESN'T EXIST\n");
+//    }
+//    if(loadTexture("data/desert2.jpg&size=1024", id[1])==-1) {
+//        printf("DESERT TEXTURE DOESNT EXIST\n");
+//    }
+//    deserttexture = id[1];
+//    barktexture = id[0];
 
     // Bind the ambient and diffuse color of each vertex to the current glColor() value
     glEnable(GL_COLOR_MATERIAL);
@@ -204,7 +204,7 @@ void View::initializeGL()
 
 
     // Set the screen color when the color buffer is cleared (in RGBA format)
-    glClearColor(0.001,0.0,0.01, 1.0f);
+    glClearColor(0.8, 0.8, 0.8, 1.0);
 
     // Load the initial settings
     updateSettings();
@@ -232,7 +232,7 @@ void View::initializeGL()
 
 
     initializeShaders();
-    m_emitter = new ParticleEmitter(loadTexture(":textures/particle1.bmp", id[2]), float3(1.0, 1.0, 1.0), float3(0.0, 3.0, -7.0), float3(0.0, 0.0, -0.004), 0.1, 20.0, 30.0/10000.0, 5000);
+    m_emitter = new ParticleEmitter(loadTexture(":textures/particle1.bmp", id[2]), float3(1.0, 1.0, 1.0), float3(0.0, 5.0, -30.0), float3(0.0, 0.0, -0.004), 0.1, 20.0, 30.0/10000.0, 5000);
 //    m_emitter->force().z = -0.1;
 //    m_emitter->velocity().z = -5.0;
 }
@@ -265,7 +265,7 @@ void View::paintTrunk() {
     int tess = 20;
     float incr = r_cir/(float)tess;
 
-    glColor4f(0.05f, 0.01, 0.0, 1.0f);
+    glColor4f(0.0f, 0.0, 0.0, 1.0f);
     float old_r = r_cir + TREE_RAD;
     float new_r;
     for (float h = incr; h <= r_cir; h += incr) {
@@ -282,8 +282,9 @@ void View::paintTrunk() {
     for (int i=0; i<50; i++) {
         glPushMatrix();
         glTranslatef(0, 0, m_branches[i].height);
-        glRotatef(m_branches[i].slope, 0.0, 1.0, 0.0);
-        glRotatef(10*m_branches[i].dir, 0.0, 0.0, 1.0);
+
+        glRotatef(m_branches[i].dir, 0.0, 0.0, 1.0);
+        glRotatef(-m_branches[i].slope, 1.0, 0.0, 0.0);
 
         glRotatef(90, 1.0, 0.0, 0.0);
         m_branches[i].branch->drawBranch(m_quadric);
@@ -314,7 +315,7 @@ void View::paintTrunk() {
 void View::paintMountains() {
     glPushMatrix();
     glScalef(20.0,20.0,20.0);
-    glColor4f(0.0,1.0,0.0,1.0);
+//    glColor4f(0.0,1.0,0.0,1.0);
 
     int gridlength = m_bterrain->m_gridLength;
 
@@ -387,14 +388,35 @@ void View::paintEverything() {
     // Clear the color and depth buffers to the current glClearColor
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+//    m_shaderPrograms["blur"]->setUniformValue((const char*)"posx", (GLfloat)0.0);//(GLfloat)m_camera.eye.x);
+//    m_shaderPrograms["blur"]->setUniformValue((const char*)"posy", (GLfloat) -23479230.0);//(GLfloat)m_camera.eye.y);
+//    m_shaderPrograms["blur"]->setUniformValue((const char*)"posz",  (GLfloat)10.0);//(GLfloat)m_camera.eye.z);
+    GLfloat pos[] = {1.0, 1.0, 1.0};
+
+//    m_shaderPrograms["blur"]->setUniformValueArray(m_shaderPrograms["blur"]->uniformLocation("pos"), &pos[0], 3, 1);
+//    GLint l = glGetUniformLocation(m_shaderPrograms["blur"], "pos");
+//    glUniform3f(l, 1.0,1.0,1.0);
+
+    m_shaderPrograms["blur"]->bind();
+
+        m_shaderPrograms["blur"]->setUniformValue((const char*)"posx", (GLfloat)m_camera.eye.x);
+        m_shaderPrograms["blur"]->setUniformValue((const char*)"posy", (GLfloat)m_camera.eye.y);
+        m_shaderPrograms["blur"]->setUniformValue((const char*)"posz",  (GLfloat)m_camera.eye.z);
+
+
     glEnable(GL_DEPTH_TEST);
     paintTrunk();
+
 //    paintMountains();
     m_emitter->updateParticles();       //Move the particles
     glPushMatrix();
+    glScalef(5,5,5);
     glTranslatef(0, 0, 90);
+
     m_emitter->drawParticles(m_quadric);         //Draw the particles
     glPopMatrix();
+
+    m_shaderPrograms["blur"]->release();
 
     glDisable(GL_DEPTH_TEST);
 
