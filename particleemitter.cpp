@@ -125,7 +125,7 @@ void ParticleEmitter::drawParticles(GLUquadric *quadric)
 
         glPushMatrix();
         glTranslatef(p.pos.x, p.pos.y, p.pos.z);
-        gluSphere(quadric, 1.0, 7,7);
+        gluSphere(quadric, 0.07, 7,7);
         glPopMatrix();
 //        glVertex3f(p.pos.x-length, p.pos.y+length, p.pos.z);
 //////     ---   glTexCoord2f(0,1);

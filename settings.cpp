@@ -20,6 +20,8 @@ void Settings::loadSettingsOrDefaults()
     shadingMode = s.value("shadingMode", SHADING_FLAT).toInt();
     camera_control = s.value("camera_control", TIMER_CONTROL).toInt();
     view_rad = 50.0f;
+    direction = s.value("direction", UPWARDS).toInt();
+    mountains = s.value("mountains", false).toBool();
 }
 
 void Settings::saveSettings()
@@ -30,4 +32,6 @@ void Settings::saveSettings()
     s.setValue("lightingEnabled", lightingEnabled);
     s.setValue("shadingMode", shadingMode);
     s.setValue("view_rad", view_rad);
+    s.setValue("direction", direction);
+    s.setValue("mountains", mountains);
 }

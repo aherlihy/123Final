@@ -25,6 +25,11 @@ enum CameraControl {
     TIMER_CONTROL
 };
 
+enum Direction {
+    UPWARDS,
+    DOWNWARDS
+};
+
 /**
 
     @struct Settings
@@ -49,6 +54,9 @@ struct Settings
     int shadingMode;    // The shading mode to be used.
     int camera_control;
     float view_rad;
+    int direction;
+    int mountains;
+
 };
 
 // The global Settings object, will be initialized by MainWindow
